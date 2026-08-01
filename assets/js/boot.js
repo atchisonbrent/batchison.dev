@@ -20,4 +20,44 @@
       if (y > 0) window.scrollTo(0, y);
     } catch (e) {}
   });
+
+  // Stale-module watchdog. main.js sets __mainReady as its last statement; if
+  // that hasn't happened shortly after load, the module graph is broken -
+  // in practice a stale/mixed cached module (seen on Chrome iOS). Recovery:
+  // re-fetch the graph with cache:"reload" (replaces the browser's HTTP-cache
+  // entries - a plain reload would reuse them), then reload once. The
+  // sessionStorage guard stops a reload loop when JS is broken for real.
+  var RK = "batchison-js-recovery";
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      if (window.__mainReady) {
+        try { sessionStorage.removeItem(RK); } catch (e) {}
+        return;
+      }
+      try {
+        if (sessionStorage.getItem(RK)) return;
+        sessionStorage.setItem(RK, "1");
+      } catch (e) { return; }
+      var entry = document.querySelector('script[type="module"]');
+      if (!entry || !window.fetch) return;
+      var seen = {};
+      function refetch(url) {
+        if (seen[url]) return Promise.resolve();
+        seen[url] = true;
+        return fetch(url, { cache: "reload" })
+          .then(function (res) { return res.text(); })
+          .then(function (src) {
+            var deps = [];
+            var re = /from\s+"(\.\/[\w./-]+)"/g;
+            for (var m = re.exec(src); m; m = re.exec(src)) {
+              deps.push(refetch(new URL(m[1], url).href));
+            }
+            return Promise.all(deps);
+          });
+      }
+      refetch(entry.src).catch(function () {}).then(function () {
+        window.location.reload();
+      });
+    }, 3000);
+  });
 })();

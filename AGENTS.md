@@ -55,7 +55,8 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
 - All motion respects `prefers-reduced-motion` (shared check in
   `assets/js/motion.js`). New effects must too.
 - Fonts, favicon, everything is same-origin. The CSP has no third-party
-  allowances and `connect-src` is closed - adding any external request
+  allowances and `connect-src` is `'self'` (the stale-module watchdog in
+  `boot.js` re-fetches the module graph) - adding any external request
   requires a deliberate CSP change.
 
 ## Verification

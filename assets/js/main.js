@@ -17,3 +17,7 @@ const effects = initEffects();
 initProjects(effects && effects.recacheCards);
 initReveal();
 initDestruct();
+
+// Signals the stale-module watchdog in boot.js that the graph booted. Only
+// reached if every import above resolved and executed.
+window.__mainReady = true;

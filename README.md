@@ -45,7 +45,10 @@ That's it - static files, any server works.
   inline scripts), HSTS, `nosniff`, `Permissions-Policy`,
   `Referrer-Policy`.
 - Dashboard-side settings not expressible in `_headers`: Always Use
-  HTTPS, Minimum TLS 1.2, Bot Fight Mode.
+  HTTPS, Minimum TLS 1.2, Bot Fight Mode, and Browser Cache TTL set to
+  "Respect Existing Headers" (any fixed TTL there silently overrides
+  every `_headers` max-age lower than it - it's what turned the 10-min
+  JS cache into 4 hours).
 
 ## Contributing / editing
 
