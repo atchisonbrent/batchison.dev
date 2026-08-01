@@ -175,12 +175,21 @@ a:hover { text-decoration: underline; }
 .menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
 .menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
+/* Absolute, not in-flow: as a static block it grew the sticky header and
+   pushed main down instead of overlaying it. The sticky header is the
+   containing block, so top: 100% lands it right under the nav bar. */
 .mobile-nav {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   padding: 12px 24px 20px;
   border-bottom: 1px solid var(--border);
+  /* Opaque: the header's translucent bg would let content show through */
   background: var(--surface);
+  box-shadow: 0 12px 24px -12px rgb(0 0 0 / 0.45);
 }
 .mobile-nav a {
   padding: 12px 0;
