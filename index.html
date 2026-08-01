@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <script>
+    (function () {
+      var saved;
+      try { saved = localStorage.getItem("batchison-theme"); } catch (e) {}
+      var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.classList.add("js-reveal");
+
+      try { history.scrollRestoration = "auto"; } catch (e) {}
+      var SK = "batchison-scroll";
+      window.addEventListener("pagehide", function () {
+        try { sessionStorage.setItem(SK, String(window.scrollY)); } catch (e) {}
+      });
+      window.addEventListener("DOMContentLoaded", function () {
+        try {
+          var y = parseInt(sessionStorage.getItem(SK), 10);
+          if (y > 0) window.scrollTo(0, y);
+        } catch (e) {}
+      });
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Brent Atchison - infrastructure engineer. Go operators, Python agent harnesses, observability, and a homelab full of local LLMs." />
+  <meta name="author" content="Brent Atchison" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Brent Atchison" />
+  <meta property="og:description" content="Infrastructure engineer. Go operators, Python agent harnesses, observability, and a homelab full of local LLMs." />
+  <meta property="og:url" content="https://batchison.dev" />
+  <meta property="og:image" content="https://batchison.dev/assets/img/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://batchison.dev/" />
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%236366f1%22/><text x=%2250%22 y=%2272%22 font-size=%2260%22 text-anchor=%22middle%22 fill=%22white%22 font-family=%22monospace%22 font-weight=%22700%22>b</text></svg>" />
+  <link rel="apple-touch-icon" href="/assets/img/apple-touch-icon.png" />
+
+  <link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="assets/fonts/jetbrains-mono-var-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+  <link rel="stylesheet" href="assets/css/style.css?v=10" />
+  <title>Brent Atchison - batchison.dev</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <div class="container nav">
+      <a class="brand" href="/#top" aria-label="Brent Atchison home">
+        <span class="brand-mark">b</span>
+        <span class="brand-text">batchison.dev</span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary">
+        <a href="/#about">About</a>
+        <a href="/#stack">Stack</a>
+        <a href="/#projects">Projects</a>
+        <a href="/#offscreen">Off-Screen</a>
+        <a href="/#contact">Contact</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile" hidden>
+      <a href="/#about">About</a>
+      <a href="/#stack">Stack</a>
+      <a href="/#projects">Projects</a>
+      <a href="/#offscreen">Off-Screen</a>
+      <a href="/#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container">
+        <p class="hero-eyebrow">Infrastructure / Go / Applied AI</p>
+        <h1 class="hero-title">Brent Atchison</h1>
+        <p class="hero-subtitle">
+          Infrastructure engineer working the full vertical slice - kernel
+          TCP stats up to LLM prompt architecture. Go operators, distributed
+          caches, agent infrastructure. Off the clock: local LLMs and a
+          homelab that keeps growing.
+        </p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="/#stack">See the stack</a>
+          <a class="btn btn-ghost" href="/#projects">Projects</a>
+        </div>
+        <div class="hero-meta">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Austin, TX &middot; Homelab online</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="container">
+        <h2 class="section-title">About</h2>
+        <div class="about-grid">
+          <div class="prose">
+            <p>
+              Infrastructure engineer in Austin. Mostly Go - operators,
+              microservices, distributed systems - with Python for agent
+              tooling. The pattern that keeps repeating: take a fragile,
+              manually-operated system and turn it into a declarative,
+              observable surface someone else can run.
+            </p>
+            <p>
+              Lately that means agent infrastructure. Built a production
+              agent harness twice - Python first, then ported onto a Go
+              platform. Custom MCP servers, safe-eval sandboxes with AST
+              allowlists, model routing with health-class failover,
+              side-channels that keep full result sets out of the LLM
+              context. Security lives in code, not in the prompt.
+            </p>
+            <p>
+              Before that: observability that catches real signal -
+              Prometheus recording rules, z-score alerting, dashboards as
+              code, access logs flowing through ClickHouse into
+              pre-aggregated gauges. CI that respects developer time -
+              dependency-aware test matrices, timing-fed sharding.
+            </p>
+            <p>
+              This site is static, served from Cloudflare's edge. Dynamic stuff
+              lives on subdomains pointing back to the homelab through a
+              Cloudflare Tunnel.
+            </p>
+          </div>
+          <ul class="chip-list" aria-label="Focus areas" id="chip-list">
+            <li>Go</li>
+            <li>Python</li>
+            <li>Kubernetes</li>
+            <li>kubebuilder</li>
+            <li>Operators</li>
+            <li>CRDs</li>
+            <li>CEL</li>
+            <li>envtest</li>
+            <li>gRPC</li>
+            <li>ConnectRPC</li>
+            <li>Prometheus</li>
+            <li>VictoriaMetrics</li>
+            <li>Grafana</li>
+            <li>ClickHouse</li>
+            <li>Vector</li>
+            <li>CockroachDB</li>
+            <li>Ceph</li>
+            <li>Envoy</li>
+            <li>SWIM</li>
+            <li>HRW hashing</li>
+            <li>RDMA</li>
+            <li>TCP_INFO</li>
+            <li>Kafka</li>
+            <li>Temporal</li>
+            <li>Vault</li>
+            <li>Doppler</li>
+            <li>GitHub Actions</li>
+            <li>ArgoCD</li>
+            <li>Kargo</li>
+            <li>Helm</li>
+            <li>MCP</li>
+            <li>FastMCP</li>
+            <li>Model routing</li>
+            <li>Local LLMs</li>
+            <li>Docker</li>
+            <li>Cloudflare Tunnel</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="stack" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title">Stack</h2>
+        <p class="section-lede">What I reach for, by category.</p>
+        <div class="stack-grid">
+          <article class="stack-card reveal">
+            <h3 class="stack-heading">Go & Kubernetes</h3>
+            <ul class="stack-list">
+              <li><span class="stack-name">Go</span><span class="stack-note">operators, ConnectRPC, pgx/v5</span></li>
+              <li><span class="stack-name">kubebuilder</span><span class="stack-note">CRD design, CEL validation, admission webhooks</span></li>
+              <li><span class="stack-name">controller-runtime</span><span class="stack-note">envtest, kind e2e, reconcile loops</span></li>
+            </ul>
+          </article>
+          <article class="stack-card reveal">
+            <h3 class="stack-heading">Observability</h3>
+            <ul class="stack-list">
+              <li><span class="stack-name">Prometheus</span><span class="stack-note">recording rules, z-score alerting</span></li>
+              <li><span class="stack-name">VictoriaMetrics</span><span class="stack-note">fleet-scale TSDB, global queries</span></li>
+              <li><span class="stack-name">Envoy + ClickHouse</span><span class="stack-note">access logs to metrics, TTFB</span></li>
+            </ul>
+          </article>
+          <article class="stack-card reveal">
+            <h3 class="stack-heading">Agents & MCP</h3>
+            <ul class="stack-list">
+              <li><span class="stack-name">Agent harness</span><span class="stack-note">model routing, health-class failover</span></li>
+              <li><span class="stack-name">MCP servers</span><span class="stack-note">vendor APIs, observability, files</span></li>
+              <li><span class="stack-name">Safe-eval</span><span class="stack-note">AST allowlists, side-channels</span></li>
+            </ul>
+          </article>
+          <article class="stack-card reveal">
+            <h3 class="stack-heading">CI/CD</h3>
+            <ul class="stack-list">
+              <li><span class="stack-name">GitHub Actions</span><span class="stack-note">dependency-aware matrix generation</span></li>
+              <li><span class="stack-name">Test sharding</span><span class="stack-note">timing-fed LPT bin-packing</span></li>
+              <li><span class="stack-name">Argo / Kargo</span><span class="stack-note">release-please, DevSpace, Helm</span></li>
+            </ul>
+          </article>
+          <article class="stack-card reveal">
+            <h3 class="stack-heading">Data & Services</h3>
+            <ul class="stack-list">
+              <li><span class="stack-name">Databases</span><span class="stack-note">CockroachDB, ClickHouse, SQLite</span></li>
+              <li><span class="stack-name">gRPC / ConnectRPC</span><span class="stack-note">service APIs, Envoy, h2c</span></li>
+              <li><span class="stack-name">Secrets</span><span class="stack-note">Vault, Doppler, External Secrets</span></li>
+            </ul>
+          </article>
+          <article class="stack-card reveal">
+            <h3 class="stack-heading">Python & Local AI</h3>
+            <ul class="stack-list">
+              <li><span class="stack-name">Python</span><span class="stack-note">agent tooling, FastMCP</span></li>
+              <li><span class="stack-name">Local LLMs</span><span class="stack-note">Ollama, LM Studio, local serving</span></li>
+              <li><span class="stack-name">Model formats</span><span class="stack-note">MoE, GGUF, quantization</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <div class="container">
+        <div class="projects-header">
+          <div class="projects-title-block">
+            <h2 class="section-title">Projects</h2>
+            <p class="section-lede">Things I've built. Hit shuffle for a random tour.</p>
+          </div>
+          <div class="projects-controls">
+            <!-- Reset sits at the LEFT end: the controls row is right-anchored,
+                 so unhiding Reset grows the row leftward into free space and
+                 the pager/shuffle never move under the pointer mid-spam. -->
+            <button class="control-btn reset-btn" id="reset-btn" type="button" aria-label="Reset to ranked order" hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h8"/></svg>
+              <span class="btn-label">Reset</span>
+            </button>
+            <div class="pager" role="group" aria-label="Project pages">
+              <button class="control-btn pager-btn" id="pager-prev" type="button" aria-label="Previous projects page">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <span class="pager-count" id="pager-count" aria-live="polite">1 / 1</span>
+              <button class="control-btn pager-btn" id="pager-next" type="button" aria-label="Next projects page">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            <button class="control-btn shuffle-btn" id="shuffle-btn" type="button" aria-label="Shuffle project order">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+              <span class="btn-label">Shuffle</span>
+            </button>
+          </div>
+        </div>
+        <div class="project-grid" id="project-grid">
+          <article class="project-card reveal">
+            <div class="project-tag">Python / Go / AI</div>
+            <h3>Agent harness</h3>
+            <ul class="card-points">
+              <li>Safe-eval sidecar - AST allowlists block imports, dunders, open, subprocess</li>
+              <li>Side-channels keep result sets out of the token window - CSVs go to Slack</li>
+              <li>Model routing: failover on health classes only, fallback sticks per session</li>
+              <li>PR review verb is a compile-time COMMENT - the model can't approve</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / Distributed</div>
+            <h3>Read cache mesh</h3>
+            <ul class="card-points">
+              <li>Every request clears the gateway, bytes go backend-to-node</li>
+              <li>SWIM + HRW hashing - placement identity survives rolling restarts</li>
+              <li>Flapping nodes self-isolate until restart - flapping is worse than missing</li>
+              <li>HTTP <code>507</code> when the cache can't hold the working set; RDMA when enabled</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / Storage</div>
+            <h3>S3-compatible gateway</h3>
+            <ul class="card-points">
+              <li>Body probe before committing status - honest 5xx, not a truncated 200</li>
+              <li>Stale-tolerant metadata cache - warm rides out outages, cold fails honestly</li>
+              <li>Keyset pagination - common prefixes skipped in a single DB hop</li>
+              <li>Versions are microsecond wall-clock - same-microsecond PUTs collide as 503</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / Networking</div>
+            <h3>Kernel TCP telemetry</h3>
+            <ul class="card-points">
+              <li><code>TCP_INFO</code> via <code>getsockopt</code> - RTT, retransmits, cwnd, delivery rate</li>
+              <li>Three modes: client probes, server listener, peer mesh via DNS discovery</li>
+              <li>Bounded allowed-unreachable peers - one blipping node can't page anyone</li>
+              <li>Jittered probe loops desynchronize pods - no self-inflicted thundering herd</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / K8s</div>
+            <h3>Kubernetes operators</h3>
+            <ul class="card-points">
+              <li>Cache backing (hostPath / emptyDir / PVC) as a first-class CRD field</li>
+              <li>Observe-only mode watches chart-owned deployments, writes nothing</li>
+              <li>CEL at admission - path regexes, one volume source per directory</li>
+              <li>Control plane only - the operator never sits in the data path</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Python / Go / MCP</div>
+            <h3>MCP servers</h3>
+            <ul class="card-points">
+              <li>21 observability tools in Go, 5 storage tools in Python - all read-only</li>
+              <li>Concurrent fan-out - one bad cluster can't poison the whole batch</li>
+              <li>Optional startup policy - a degraded backend can't block boot</li>
+              <li>Schemas from Swagger with live-sample fallback, refreshed in the background</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / CI</div>
+            <h3>Test matrix sharding</h3>
+            <ul class="card-points">
+              <li>Walks the reverse-dependency closure across <code>go.work</code>, stdlib included</li>
+              <li>LPT bin-packing shards tests by historical timing from main</li>
+              <li>586s mega-suite split into six drivers - module ceiling 15.2m to 11m</li>
+              <li>Docs-only commits run zero test jobs - was all 31 modules per push</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / Infra</div>
+            <h3>Storage controller</h3>
+            <ul class="card-points">
+              <li>Solo RFC - tie tenants to nodes, kill VIP pools and the 32-tenant cap</li>
+              <li>Reconciles bare-metal node CRs - node IP binds to its cluster's tenant</li>
+              <li>Single-concurrency reconciles with debounce - ordering safety over throughput</li>
+              <li>30s deadline on storage API calls - fail fast, never hang the queue</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / AI</div>
+            <h3>Skills system</h3>
+            <ul class="card-points">
+              <li>Three tiers: ~100-token metadata, bounded body, resources on demand</li>
+              <li>allowed-tools checked before rendering - rejected activations leak nothing</li>
+              <li>Immutable catalog behind <code>atomic.Pointer</code> - hot-swap without locks</li>
+              <li>Bundle generator emits a spec-compliant Claude Code plugin</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / DevOps</div>
+            <h3>Deployment system</h3>
+            <ul class="card-points">
+              <li>Per-zone Helm values rendered from typed Go structs - no template hell</li>
+              <li>Declarative membership - one line per zone fans out ~31 rendered files</li>
+              <li>Promotion DAG errors out if staging or prod lacks a canary tier</li>
+              <li>Rendered plain YAML lives in git - SHAs are the versions</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Go / Observability</div>
+            <h3>Observability pipeline</h3>
+            <ul class="card-points">
+              <li>Envoy writes the access log, not the app - metadata carries op, bucket, TTFB</li>
+              <li>Vector to ClickHouse to pre-aggregated Prometheus gauges</li>
+              <li>No <code>_bucket</code> series - threshold-on-gauge alerting instead</li>
+              <li>Sub-100KiB reads only - 7s peak while clients saw 30s. Know what a metric hides.</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Static</div>
+            <h3>batchison.dev</h3>
+            <ul class="card-points">
+              <li>Plain HTML/CSS/JS - no framework, no build step, no dependencies</li>
+              <li>Cloudflare Pages with auto TLS, served from the edge</li>
+              <li>Rainbow dot-grid spotlight, magnetic chips, FLIP shuffle</li>
+              <li>Scroll restoration and theme persistence across reloads</li>
+            </ul>
+            <div class="project-links">
+              <a href="https://github.com/atchisonbrent/batchison.dev" target="_blank" rel="noopener">Source &rarr;</a>
+            </div>
+          </article>
+        </div>
+        <div class="projects-footer">
+          <button class="control-btn expand-btn" id="expand-btn" type="button" aria-expanded="false">
+            <span class="expand-label">Expand</span>
+            <svg class="expand-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+      </div>
+      <button class="control-btn float-collapse" id="float-collapse" type="button" aria-label="Collapse projects" hidden>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+        <span>Collapse</span>
+      </button>
+    </section>
+
+    <section id="offscreen" class="section section-alt">
+      <div class="container">
+        <h2 class="section-title">Off-Screen</h2>
+        <p class="section-lede">The rest of it. Where the hours go when the laptop closes.</p>
+        <div class="bento-grid">
+          <article class="bento-card reveal bento-wide terminal-card">
+            <div class="terminal-bar">
+              <span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span>
+              <span class="terminal-title">currently</span>
+            </div>
+            <pre class="terminal-body"><code><span class="t-prompt">batchison@lab:~$</span> cat current_state.yml
+<span class="t-key">homelab:</span>
+  <span class="t-key">os:</span> <span class="t-val">Unraid</span>
+  <span class="t-key">compute:</span> <span class="t-val">8th gen Intel i5 NUC (32GB, 1TB SSD, USB 2.0 drive)</span>
+  <span class="t-key">storage:</span> <span class="t-val">Synology DS1621+ (96TB raw)</span>
+  <span class="t-key">llm:</span> <span class="t-val">[LM Studio, Ollama]</span>
+<span class="t-key">network:</span>
+  <span class="t-key">isp:</span> <span class="t-val">AT&T Fiber</span>
+  <span class="t-key">gateway:</span> <span class="t-val">UCG Fiber</span>
+  <span class="t-key">switching:</span>
+    <span class="t-val">- USW Pro XG 8 PoE</span>
+    <span class="t-val">- 3x USW Flex 2.5G 8 PoE</span>
+    <span class="t-val">- USW Flex 2.5G 8</span>
+  <span class="t-key">aps:</span>
+    <span class="t-val">- 2x U7 Pro Wall</span>
+    <span class="t-val">- U7 Lite</span>
+  <span class="t-key">backup_wan:</span> <span class="t-val">[U5G Max, C4P Shield]</span>
+  <span class="t-key">dns:</span> <span class="t-val">NextDNS</span>
+  <span class="t-key">ingress:</span> <span class="t-val">Cloudflare Tunnels</span>
+<span class="t-key">desk:</span>
+  <span class="t-key">case:</span> <span class="t-val">Jonsbo Z20 (SFF)</span>
+  <span class="t-key">cpu:</span> <span class="t-val">Ryzen 9800X3D</span>
+  <span class="t-key">gpu:</span> <span class="t-val">RTX 5090</span>
+  <span class="t-key">display:</span> <span class="t-val">LG C3 42" OLED</span>
+<span class="t-prompt">batchison@lab:~$</span> <span class="t-cursor">_</span></code></pre>
+          </article>
+
+          <article class="bento-card reveal">
+            <h3 class="bento-title"><span class="bento-kicker">The Lab</span> <span class="bento-sep">-</span> <span class="bento-sub">Self-Hosted</span></h3>
+            <p class="bento-text">Someone else's cloud is just a computer you can't touch. No open ports, no exposed IP.</p>
+            <dl class="spec-list">
+              <dt>Media</dt><dd>Plex, QuickSync hardware transcode</dd>
+              <dt>Series</dt><dd>Sonarr split by TV / 4K / anime</dd>
+              <dt>Films</dt><dd>Radarr split by HDR / standard</dd>
+              <dt>Front end</dt><dd>Organizr, Ombi, Tautulli</dd>
+              <dt>Remote</dt><dd>Tailscale / WireGuard</dd>
+              <dt>Wired</dt><dd>10G to every room</dd>
+            </dl>
+          </article>
+
+          <article class="bento-card reveal">
+            <h3 class="bento-title"><span class="bento-kicker">The Garage</span> <span class="bento-sep">-</span> <span class="bento-sub">Hill Country Runs</span></h3>
+            <p class="bento-text">When the weekend clears, it's backroads and elevation.</p>
+            <dl class="spec-list">
+              <dt>Now</dt><dd>2023 BMW M2</dd>
+              <dt>Gearbox</dt><dd>Six-speed manual</dd>
+              <dt>Path</dt><dd>RAV4 → Mazda3 → MX-5 → M2</dd>
+              <dt>Planned</dt><dd>Tune and exhaust</dd>
+            </dl>
+          </article>
+
+          <article class="bento-card reveal">
+            <h3 class="bento-title"><span class="bento-kicker">Travel</span> <span class="bento-sep">-</span> <span class="bento-sub">Vacation Favorites</span></h3>
+            <ul class="trip-list">
+              <li><span class="trip-place">Japan</span></li>
+              <li><span class="trip-place">South Korea</span></li>
+              <li><span class="trip-place">Vietnam</span></li>
+              <li><span class="trip-place">Caribbean</span></li>
+            </ul>
+            <p class="bento-text">Trips get planned around food first, sights second.</p>
+          </article>
+
+          <article class="bento-card reveal">
+            <h3 class="bento-title"><span class="bento-kicker">Kitchen</span> <span class="bento-sep">-</span> <span class="bento-sub">Always Bulking</span></h3>
+            <p class="bento-text">Overnight dry brines, reverse sears, wagyu tallow on everything.</p>
+            <dl class="spec-list">
+              <dt>High score</dt><dd>8.85lb beef plate ribs</dd>
+              <dt>Kit</dt><dd>Oven and stainless</dd>
+              <dt>Next</dt><dd>Grill</dd>
+            </dl>
+          </article>
+
+          <article class="bento-card reveal">
+            <h3 class="bento-title"><span class="bento-kicker">Games</span> <span class="bento-sep">-</span> <span class="bento-sub">Off the Clock</span></h3>
+            <p class="bento-text">Destiny and Halo above all.</p>
+            <dl class="spec-list">
+              <dt>Rotation</dt><dd>Cyberpunk, Civ VI, Black Flag</dd>
+              <dt>Nintendo</dt><dd>Zelda, Pokemon, Mario</dd>
+              <dt>Grind</dt><dd>OSRS</dd>
+              <dt>Hosted</dt><dd>Terraria server on the lab</dd>
+            </dl>
+          </article>
+
+          <article class="bento-card reveal bento-wide">
+            <h3 class="bento-title"><span class="bento-kicker">Listening</span> <span class="bento-sep">-</span> <span class="bento-sub">On Rotation</span></h3>
+            <div class="music-grid">
+              <div class="music-genre">
+                <span class="music-label">Heavy bass</span>
+                <ul class="music-artists music-cols">
+                  <li>Ganja White Night</li>
+                  <li>ATLiens</li>
+                  <li>Apashe</li>
+                  <li>Zeds Dead</li>
+                  <li>KOAN Sound</li>
+                </ul>
+              </div>
+              <div class="music-genre">
+                <span class="music-label">Melodic bass</span>
+                <ul class="music-artists music-cols">
+                  <li>AVELLO</li>
+                  <li>Trivecta</li>
+                  <li>ILLENIUM</li>
+                  <li>Said The Sky</li>
+                  <li>Dabin</li>
+                </ul>
+              </div>
+              <div class="music-genre">
+                <span class="music-label">Funk / soul</span>
+                <ul class="music-artists music-cols">
+                  <li>GRiZ</li>
+                  <li>Defunk</li>
+                  <li>Maddy O'Neal</li>
+                  <li>Elephant Heart</li>
+                </ul>
+              </div>
+              <div class="music-genre">
+                <span class="music-label">On repeat</span>
+                <ul class="music-artists">
+                  <li>Apashe - Lost In Mumbai</li>
+                  <li>Zeds Dead - One Of These Mornings</li>
+                  <li>ATLiens - FLOWERS</li>
+                </ul>
+              </div>
+              <div class="music-genre">
+                <span class="music-label">Scores</span>
+                <ul class="music-artists music-cols">
+                  <li>Martin O'Donnell</li>
+                  <li>Michael Salvatori</li>
+                  <li>Hans Zimmer</li>
+                </ul>
+              </div>
+              <div class="music-genre">
+                <span class="music-label">Remixes</span>
+                <ul class="music-artists music-cols">
+                  <li>NGHTMRE</li>
+                  <li>Champagne Drip</li>
+                  <li>ODESZA</li>
+                  <li>Paper Skies</li>
+                  <li>COASTR</li>
+                </ul>
+              </div>
+              <div class="music-genre">
+                <span class="music-label">Under the radar</span>
+                <ul class="music-artists music-cols">
+                  <li>Desren</li>
+                  <li>Salvo</li>
+                  <li>Dreamers Delight</li>
+                  <li>Know Good</li>
+                  <li>bardz</li>
+                </ul>
+              </div>
+              <div class="music-genre">
+                <span class="music-label">Festivals</span>
+                <ul class="music-artists music-cols">
+                  <li>Lost Lands</li>
+                  <li>EDC</li>
+                  <li>Electric Forest</li>
+                  <li>Illfest</li>
+                </ul>
+              </div>
+            </div>
+          </article>
+
+          <article class="bento-card reveal">
+            <h3 class="bento-title"><span class="bento-kicker">Acoustics</span> <span class="bento-sep">-</span> <span class="bento-sub">3.2 Listening Room</span></h3>
+            <p class="bento-text">Chasing a wall of sound. Skip the bass shakers - just make actual bass. Every slot has been upgraded at least once:</p>
+            <dl class="spec-list">
+              <dt>Towers</dt><dd><s>Polk Monitor 75T</s> → Ascend Sierra Towers</dd>
+              <dt>Bookshelves</dt><dd><s>Polk</s> → Wharfedale Diamond 10.1</dd>
+              <dt>Center</dt><dd><s>Polk</s> → Ascend ELX Horizon</dd>
+              <dt>Subs</dt><dd><s>Polk</s> → <s>SVS PB-2000</s> → 2x PSA S21 IPAL</dd>
+              <dt>Receiver</dt><dd><s>Marantz NR1403</s> → Denon X3500H</dd>
+            </dl>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="container">
+        <h2 class="section-title">Contact</h2>
+        <p class="section-lede">LinkedIn is the best way to reach me. GitHub works too.</p>
+        <div class="contact-grid">
+          <a class="contact-card" href="https://www.linkedin.com/in/brent-atchison/" target="_blank" rel="noopener">
+            <span class="contact-label">LinkedIn</span>
+            <span class="contact-value">in/brent-atchison</span>
+          </a>
+          <a class="contact-card" href="https://github.com/atchisonbrent" target="_blank" rel="noopener">
+            <span class="contact-label">GitHub</span>
+            <span class="contact-value">github.com/atchisonbrent</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>&copy; <span id="year">2026</span> Brent Atchison. Built static, served from the edge.</p>
+      <p class="footer-links">
+        <a href="/#top">Back to top &uarr;</a>
+      </p>
+    </div>
+  </footer>
+
+  <script type="module" src="assets/js/main.js?v=6"></script>
+</body>
+</html>
