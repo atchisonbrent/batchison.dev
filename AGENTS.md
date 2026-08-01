@@ -38,7 +38,10 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
 - **The `<noscript><style>` block in `index.html`** hides JS-only
   controls (`.theme-toggle`, `.menu-toggle`, `.projects-controls`,
   `.projects-footer`). Adding a new JS-only control means adding it
-  there too, or it renders as a dead button without JS.
+  there too, or it renders as a dead button without JS. Alternative
+  pattern: keep the element decorative in markup and bolt button
+  semantics on from JS (see the terminal's red dot in
+  `assets/js/destruct.js`).
 
 ## Conventions
 

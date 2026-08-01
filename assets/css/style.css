@@ -868,3 +868,63 @@ html.js-reveal .reveal {
 html.js-reveal .reveal.active {
   opacity: 1;
 }
+
+/* --- Self-destruct easter egg (destruct.js) --- */
+/* The red terminal dot only becomes interactive once JS arms it. */
+.dot-red.destruct-armed { cursor: pointer; }
+.dot-red.destruct-armed:hover { box-shadow: 0 0 6px #ff5f57; }
+
+/* Explosion: originals (words wrapped in .destruct-word spans, whole atoms
+   like chips) are hidden in place - keeps layout intact - while styled clones
+   fly on a document-space layer, immune to card overflow clipping and shell
+   transforms, and aligned under scrolling. Motion itself is driven by the Web
+   Animations API in JS; sizes/visuals ride inline on each clone. */
+.destruct-word { display: inline-block; }
+.destruct-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 150; /* above content, below .destruct-overlay */
+  pointer-events: none;
+  overflow: hidden;
+}
+.destruct-layer > * {
+  position: absolute;
+  display: block;
+  margin: 0;
+  list-style: none;
+  white-space: pre;
+  will-change: transform;
+}
+
+.destruct-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: #05070a;
+  font-family: var(--font-mono);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.destruct-overlay.active { opacity: 1; }
+.destruct-msg { margin: 0; color: #8b98a5; font-size: 0.95rem; }
+.destruct-restore {
+  border: 0;
+  padding: 6px 10px;
+  background: none;
+  color: #4ea1ff;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.destruct-restore:hover, .destruct-restore:focus-visible { color: #9ecbff; text-decoration: underline; }
+
+@media (prefers-reduced-motion: reduce) {
+  .destruct-overlay { transition: none; }
+}
