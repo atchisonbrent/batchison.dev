@@ -1,32 +1,13 @@
 <!DOCTYPE html>
-<!-- data-theme is deliberately absent: the inline script below sets it pre-paint,
-     and its absence is what lets the CSS media query own the no-JS case. -->
+<!-- data-theme is deliberately absent: boot.js sets it pre-paint, and its
+     absence is what lets the CSS media query own the no-JS case. -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <!-- Editing this script? The CSP in _headers pins its sha256 - a stale hash
-       blocks it and the page boots unthemed. Regen command is in _headers. -->
-  <script>
-    (function () {
-      var saved;
-      try { saved = localStorage.getItem("batchison-theme"); } catch (e) {}
-      var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-      document.documentElement.setAttribute("data-theme", theme);
-      document.documentElement.classList.add("js-reveal");
-
-      try { history.scrollRestoration = "auto"; } catch (e) {}
-      var SK = "batchison-scroll";
-      window.addEventListener("pagehide", function () {
-        try { sessionStorage.setItem(SK, String(window.scrollY)); } catch (e) {}
-      });
-      window.addEventListener("DOMContentLoaded", function () {
-        try {
-          var y = parseInt(sessionStorage.getItem(SK), 10);
-          if (y > 0) window.scrollTo(0, y);
-        } catch (e) {}
-      });
-    })();
-  </script>
+  <!-- Deliberately blocking (no defer/async): boot.js sets data-theme before
+       first paint. Same-origin and tiny, so the parser stall is one short
+       request at most. -->
+  <script src="assets/js/boot.js?v=1"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Brent Atchison - infrastructure engineer. Go operators, Python agent harnesses, observability, and a homelab full of local LLMs." />
   <meta name="author" content="Brent Atchison" />

@@ -1,0 +1,32 @@
+#!/bin/sh
+# Blocks pushes that change an immutable-cached CSS file without bumping its
+# ?v= cache key in index.html. Those files cache for a year; the bump is the
+# only invalidation. One-time setup per clone:
+#   git config core.hooksPath .githooks
+ZERO=0000000000000000000000000000000000000000
+
+while read local_ref local_sha remote_ref remote_sha; do
+  # Deleting a remote ref pushes no new content.
+  [ "$local_sha" = "$ZERO" ] && continue
+
+  if [ "$remote_sha" = "$ZERO" ]; then
+    # New remote branch: diff against where it forked from origin/main.
+    base=$(git merge-base "$local_sha" origin/main 2>/dev/null) || continue
+  else
+    base=$remote_sha
+  fi
+
+  for f in $(git diff --name-only "$base" "$local_sha" -- 'assets/css/*.css'); do
+    old_ref=$(git show "$base:index.html" 2>/dev/null | grep -o "$f?v=[0-9]*")
+    new_ref=$(git show "$local_sha:index.html" 2>/dev/null | grep -o "$f?v=[0-9]*")
+    # Not referenced before (e.g. brand-new file): nothing stale to bust.
+    [ -z "$old_ref" ] && continue
+    if [ "$old_ref" = "$new_ref" ]; then
+      echo "pre-push: $f changed but its cache key didn't ($new_ref in index.html)." >&2
+      echo "pre-push: bump the ?v= or returning visitors keep the old copy for a year." >&2
+      exit 1
+    fi
+  done
+done
+
+exit 0

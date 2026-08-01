@@ -1,0 +1,63 @@
+# Agent guide - batchison.dev
+
+Plain HTML/CSS/vanilla-JS static site on Cloudflare Pages. No frameworks,
+no dependencies, no build step, no CI. Every push to `main` deploys.
+
+## One-time setup per clone
+
+```sh
+git config core.hooksPath .githooks
+```
+
+This enables the pre-push hook that blocks the one silent trap this repo
+has: changing an immutable-cached CSS file without bumping its `?v=` in
+`index.html` (CSS caches for a year; the bump is the only invalidation).
+
+## Caching model
+
+- **CSS + fonts**: `immutable`, 1 year. CSS is referenced with `?v=N`
+  from `index.html`; bump on every change (hook-enforced). Fonts are
+  renamed on change.
+- **JS**: `max-age=600, must-revalidate`. Deliberately NOT immutable:
+  the ES module imports inside `main.js` are unversioned URLs, so
+  immutable would pin stale submodules with no way to bust them. A `?v=`
+  bump on `boot.js`/`main.js` is nice for instant propagation but not
+  required - staleness self-heals in 10 minutes.
+- **Images**: 24h, unversioned.
+
+## Coupled edits - change one, change both
+
+- **Dark palette is duplicated in `style.css`.** The
+  `[data-theme="dark"]` block and the
+  `@media (prefers-color-scheme: dark) { html:not([data-theme]) }` block
+  directly below it must stay identical (11 vars). The second is the
+  no-JS fallback; there's no preprocessor to share them.
+- **`<html>` carries no `data-theme` attribute in the markup.**
+  `assets/js/boot.js` (blocking, in `<head>`) sets it pre-paint; its
+  *absence* is the no-JS signal. Never add a static `data-theme` back.
+- **The `<noscript><style>` block in `index.html`** hides JS-only
+  controls (`.theme-toggle`, `.menu-toggle`, `.projects-controls`,
+  `.projects-footer`). Adding a new JS-only control means adding it
+  there too, or it renders as a dead button without JS.
+
+## Conventions
+
+- Conventional commits, scope = module: `feat(nav): ...`,
+  `fix(parser): ...`. Lowercase imperative subject.
+- No inline scripts. CSP `script-src` is `'self'` with no hashes; the
+  pre-paint boot lives in `assets/js/boot.js`. A new inline script means
+  reintroducing hash maintenance - put it in a file instead.
+- `_headers` comments go *above* the header block, not inside it -
+  in-block comment support is undocumented in the Pages parser.
+- All motion respects `prefers-reduced-motion` (shared check in
+  `assets/js/motion.js`). New effects must too.
+- Fonts, favicon, everything is same-origin. The CSP has no third-party
+  allowances and `connect-src` is closed - adding any external request
+  requires a deliberate CSP change.
+
+## Verification
+
+No test suite, no headless browser in the repo. Verify statically:
+`python3 -m http.server 8000` for a local look, programmatic checks
+(node one-liners) for things like palette parity, and DevTools after
+deploy for CSP/caching errors.
