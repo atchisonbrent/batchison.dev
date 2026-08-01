@@ -1,3 +1,5 @@
+import { prefersReducedMotion } from "./motion.js";
+
 // Mobile menu + anchor handling. Anchor hrefs use the "/#id" form so they
 // keep working from future non-root pages; on the home page we intercept and
 // smooth-scroll instead of navigating.
@@ -29,6 +31,37 @@ export function initMenu() {
       mobileNav.setAttribute("hidden", "");
     });
   });
+}
+
+// Floating back-to-top: the footer link only pays off once you've already
+// scrolled to the bottom, so mirror it as a fixed button past one screen.
+export function initBackToTop() {
+  const btn = document.getElementById("to-top");
+  if (!btn) return;
+
+  const footerLink = document.querySelector(".footer-links a");
+
+  function update() {
+    const pastFold = window.scrollY > window.innerHeight * 0.8;
+    // Stand down once the footer's own link is on screen - two controls for
+    // the same action in one viewport is noise
+    const footerLinkInView =
+      footerLink && footerLink.getBoundingClientRect().top < window.innerHeight;
+    if (pastFold && !footerLinkInView) {
+      btn.removeAttribute("hidden");
+      btn.classList.add("is-visible");
+    } else {
+      btn.classList.remove("is-visible");
+    }
+  }
+
+  btn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  });
+
+  window.addEventListener("scroll", update, { passive: true });
+  window.addEventListener("resize", update);
+  update();
 }
 
 export function initAnchors() {

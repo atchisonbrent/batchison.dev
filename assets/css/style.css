@@ -481,6 +481,29 @@ a:hover { text-decoration: underline; }
   transform: translateX(-50%) translateY(0);
 }
 .float-collapse:active { transform: translateX(-50%) translateY(0); }
+
+/* Bottom-right so it never collides with the bottom-centered float-collapse */
+.to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border-radius: 50%;
+  box-shadow: 0 4px 24px rgba(15, 15, 25, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s, border-color 0.15s ease, color 0.15s ease;
+  z-index: 40;
+}
+.to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+.to-top:hover, .to-top:active { transform: translateY(0); }
 .project-card {
   background: var(--surface);
   border: 1px solid var(--border);
