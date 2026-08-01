@@ -35,9 +35,29 @@ That's it - static files, any server works.
 
 - Cloudflare Pages, framework preset "None", output directory `/`.
 - DNS on Cloudflare, domain via Porkbun, TLS automatic at the edge.
-- `_headers` sets `immutable` year-long caching on fonts, 600s
-  `must-revalidate` on css/js (they change; query-string versioned), plus
-  `nosniff` / `DENY` / `strict-origin-when-cross-origin` site-wide.
+- `_headers` sets `immutable` year-long caching on fonts, css, and js -
+  all three are query-string versioned, so a `?v=` bump is what
+  invalidates, not expiry. Unversioned images get 24h.
+- Security headers site-wide: CSP (`default-src 'none'` baseline, inline
+  boot script pinned by hash), HSTS, `nosniff`, `Permissions-Policy`,
+  `Referrer-Policy`.
+- Dashboard-side settings not expressible in `_headers`: Always Use
+  HTTPS, Minimum TLS 1.2, Bot Fight Mode.
+
+## Before you push
+
+Two things bite silently if skipped:
+
+1. **Changed `style.css` or any JS?** Bump its `?v=N` in `index.html`.
+   Those files are cached `immutable` for a year - without a bump,
+   returning visitors keep the old copy indefinitely.
+2. **Changed the inline `<script>` in `<head>`?** Regen the CSP hash in
+   `_headers` (command is in that file). A stale hash means the browser
+   refuses to run it: no theme boot, no scroll restore.
+
+Neither is enforced by tooling - there's no build step or CI. After
+deploying, a load with DevTools open catches both: CSP violations log as
+errors, and a hard-reload comparison catches stale assets.
 
 ## Details worth knowing
 
