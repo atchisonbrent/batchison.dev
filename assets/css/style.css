@@ -39,6 +39,9 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
+/* Dark palette, applied by the toggle and the inline head script. Mirrored
+   verbatim in the prefers-color-scheme block below for the no-JS case - edit
+   both or the two paths drift. */
 [data-theme="dark"] {
   --accent: #818cf8;
   --accent-strong: #a5b4fc;
@@ -55,6 +58,25 @@
   --dot-2: #a78bfa;
   --dot-3: #f472b6;
   --dot-4: #fbbf24;
+}
+
+/* No-JS honors the OS preference. Scoped to :not([data-theme]) so it only ever
+   applies when the inline script didn't run - an explicit toggle choice always
+   sets the attribute and wins. Mirror of the block above. */
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --accent: #818cf8;
+    --accent-strong: #a5b4fc;
+    --accent-soft: rgba(129, 140, 248, 0.16);
+    --accent-glow: #22d3ee;
+    --bg: #0b0b12;
+    --bg-alt: #11111b;
+    --surface: #15151f;
+    --border: #262633;
+    --text: #ededf5;
+    --text-muted: #a0a0b5;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
 }
 
 * { box-sizing: border-box; }

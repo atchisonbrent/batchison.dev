@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<!-- data-theme is deliberately absent: the inline script below sets it pre-paint,
+     and its absence is what lets the CSS media query own the no-JS case. -->
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <script>
@@ -44,7 +46,23 @@
   <link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/jetbrains-mono-var-latin.woff2" as="font" type="font/woff2" crossorigin />
 
-  <link rel="stylesheet" href="assets/css/style.css?v=12" />
+  <link rel="stylesheet" href="assets/css/style.css?v=13" />
+
+  <noscript>
+    <style>
+      /* Every one of these drives behavior that only exists in JS, so with
+         scripting off they'd render as dead buttons. What they operate on stays
+         reachable: all project cards are in the markup and visible unpaged. */
+      .theme-toggle, .menu-toggle, .projects-controls, .projects-footer { display: none; }
+      /* The drawer needs JS to drop its [hidden], so below the mobile
+         breakpoint there'd be no nav at all. Wrap the desktop links onto a
+         second header row instead. */
+      @media (max-width: 760px) {
+        .nav { height: auto; flex-wrap: wrap; row-gap: 10px; padding-bottom: 12px; }
+        .nav-links { display: flex; flex-wrap: wrap; gap: 14px; width: 100%; }
+      }
+    </style>
+  </noscript>
   <title>Brent Atchison - batchison.dev</title>
 </head>
 <body>
