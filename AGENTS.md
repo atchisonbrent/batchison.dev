@@ -57,11 +57,13 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
 - **Hero physics is content-only.** `assets/js/hero.js` may wrap and move the
   eyebrow, title, description, and status text; keep buttons and
   `.private-surfaces` outside `HERO_PHYSICS_TARGETS`. Glyphs are spring-bound
-  to their reading positions, collide through a spatial grid, ignore touch
-  scrolling, and must settle back to exact zero. The pointer uses a broad,
-  forgiving field with modest momentum—the direct-contact punch experiment was
-  less satisfying in practice. Keep damping intentionally heavy and glyph
-  restitution low so the field does not become a trampoline. Update the checks in
+  to their reading positions, collide through a spatial grid, and must settle
+  back to exact zero. Mouse and touch share the broad, forgiving field; touch
+  listeners stay passive so native page scrolling remains in charge. Buttons
+  and `.private-surfaces` remain outside the target list. The direct-contact
+  punch experiment was less satisfying in practice. Keep damping modestly
+  heavier and glyph restitution lower than the original so it remains lively
+  without becoming a trampoline. Update the checks in
   `tests/validate_site.py` if the target contract intentionally changes.
 - Fonts, favicon, everything is same-origin. The CSP has no third-party
   allowances and `connect-src` is `'self'` (the stale-module watchdog in

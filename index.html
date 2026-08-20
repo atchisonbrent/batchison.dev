@@ -120,33 +120,17 @@
         <div class="about-grid">
           <div class="prose">
             <p>
-              Infrastructure engineer in Austin. Mostly Go - operators,
-              microservices, distributed systems - with Python for agent
-              tooling. The pattern that keeps repeating: take a fragile,
-              manually-operated system and turn it into a declarative,
-              observable surface someone else can run.
+              Infrastructure engineer in Austin, working mostly in Go across
+              operators, distributed systems, and service infrastructure, with
+              Python for agent tooling. I turn fragile manual systems into
+              declarative, observable ones people can operate.
             </p>
             <p>
-              Lately that means agent infrastructure. Built a production
-              agent harness twice - Python first, then ported onto a Go
-              platform. Custom MCP servers, safe-eval sandboxes with AST
-              allowlists, model routing with health-class failover,
-              side-channels that keep full result sets out of the LLM
-              context. Security lives in code, not in the prompt.
-            </p>
-            <p>
-              Before that: observability that catches real signal -
-              Prometheus recording rules, z-score alerting, dashboards as
-              code, access logs flowing through ClickHouse into
-              pre-aggregated gauges. CI that respects developer time -
-              dependency-aware test matrices, timing-fed sharding.
-            </p>
-            <p>
-              The homelab is where those instincts get exercised end to end:
-              dual-WAN and 10G networking, private observability, local model
-              serving, storage, media, and an agent that can inspect the whole
-              thing through bounded APIs. This site stays static at Cloudflare's
-              edge; private services stay behind Access and the Tailnet.
+              Current focus is agent infrastructure: MCP servers, sandboxed
+              execution, model routing, and efficient context handling. Security
+              lives in code, not the prompt. My homelab is the proving ground -
+              dual-WAN and 10G networking, private observability, local inference,
+              storage, and media behind Cloudflare Access and Tailscale.
             </p>
           </div>
           <ul class="chip-list" aria-label="Focus areas" id="chip-list">
@@ -668,6 +652,6 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></svg>
   </button>
 
-  <script type="module" src="assets/js/main.js?v=13"></script>
+  <script type="module" src="assets/js/main.js?v=14"></script>
 </body>
 </html>

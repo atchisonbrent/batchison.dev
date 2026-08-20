@@ -92,6 +92,18 @@ def main() -> None:
         require(f'href="{url}"' in html, f"Missing private surface URL: {url}")
         require(f">{label}<" in html, f"Missing private surface label: {label}")
 
+    about_match = re.search(r'<section id="about".*?<div class="prose">(.*?)</div>', html, re.DOTALL)
+    if about_match is None:
+        raise AssertionError("About prose cannot be parsed")
+    about_paragraphs = [
+        " ".join(unescape(re.sub(r"<[^>]+>", "", paragraph)).split())
+        for paragraph in re.findall(r"<p>(.*?)</p>", about_match.group(1), re.DOTALL)
+    ]
+    about_text = " ".join(about_paragraphs)
+    require(len(about_paragraphs) == 2, "About must stay concise at exactly two paragraphs")
+    require(350 <= len(about_text) <= 650, "About copy must stay within the 350-650 character budget")
+    require("Security lives in code, not the prompt" in about_text, "About must preserve the security point of view")
+
     project_blocks = re.findall(
         r'<article class="project-card reveal">(.*?)</article>',
         html,
@@ -127,7 +139,11 @@ def main() -> None:
     require("const POINTER_FORCE = 0.34" in hero_js, "Hero interaction must restore the previous proximity force")
     require("const POINTER_MOMENTUM = 0.1" in hero_js, "Hero interaction must restore the previous modest pointer momentum")
     require("const COLLISION_RESTITUTION = 0.18" in hero_js, "Glyph collisions must be slightly less elastic than the original")
-    require("pointerType === \"touch\"" in hero_js, "Touch scrolling must not activate hero physics")
+    require('addEventListener("touchstart"' in hero_js, "Hero physics must respond immediately to touch")
+    require('addEventListener("touchmove"' in hero_js, "Hero physics must follow touch movement")
+    require('addEventListener("touchend"' in hero_js, "Hero physics must settle after touch release")
+    require("touches[0]" in hero_js, "Hero physics must track the primary touch point")
+    require("preventDefault" not in hero_js, "Touch physics must not hijack native page scrolling")
     require(".hero-physics-char" in css, "Hero physics glyph styling is missing")
     require(".hero-title.hero-signal" not in css, "Rejected spectral styling must be removed")
     require(int(css_ref.group(1)) >= 16, "Hero physics styling must bump the immutable CSS cache key")

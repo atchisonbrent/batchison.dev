@@ -249,41 +249,66 @@ export function initHeroPhysics() {
     }
   }
 
-  hero.addEventListener("pointermove", (event) => {
-    if (event.pointerType === "touch") return;
+  function updatePointer(x, y) {
     const now = performance.now();
     if (pointer.lastTime === 0) {
       pointer.vx = 0;
       pointer.vy = 0;
     } else {
       const elapsed = Math.max(8, now - pointer.lastTime);
-      pointer.vx = clamp((event.clientX - pointer.lastX) / elapsed * 16, -24, 24);
-      pointer.vy = clamp((event.clientY - pointer.lastY) / elapsed * 16, -24, 24);
+      pointer.vx = clamp((x - pointer.lastX) / elapsed * 16, -24, 24);
+      pointer.vy = clamp((y - pointer.lastY) / elapsed * 16, -24, 24);
     }
-    pointer.x = event.clientX;
-    pointer.y = event.clientY;
-    pointer.lastX = event.clientX;
-    pointer.lastY = event.clientY;
+    pointer.x = x;
+    pointer.y = y;
+    pointer.lastX = x;
+    pointer.lastY = y;
     pointer.lastTime = now;
     pointer.active = true;
     settleDeadline = 0;
     scheduleFrame();
+  }
+
+  function releasePointer() {
+    pointer.active = false;
+    pointer.vx = 0;
+    pointer.vy = 0;
+    pointer.lastTime = 0;
+    settleDeadline = performance.now() + 1800;
+    scheduleFrame();
+  }
+
+  hero.addEventListener("pointermove", (event) => {
+    // Touch has its own passive path below so native scrolling remains in
+    // charge even after the browser promotes the gesture into a pan.
+    if (event.pointerType === "touch") return;
+    updatePointer(event.clientX, event.clientY);
   }, { passive: true });
 
   hero.addEventListener("pointerleave", (event) => {
     if (event.pointerType === "touch") return;
-    pointer.active = false;
-    pointer.vx = 0;
-    pointer.vy = 0;
-    settleDeadline = performance.now() + 1800;
-    scheduleFrame();
+    releasePointer();
   }, { passive: true });
 
-  hero.addEventListener("pointercancel", () => {
-    pointer.active = false;
-    settleDeadline = performance.now() + 1800;
-    scheduleFrame();
+  hero.addEventListener("pointercancel", releasePointer, { passive: true });
+
+  hero.addEventListener("touchstart", (event) => {
+    if (event.touches.length > 0) {
+      updatePointer(event.touches[0].clientX, event.touches[0].clientY);
+    }
   }, { passive: true });
+
+  hero.addEventListener("touchmove", (event) => {
+    if (event.touches.length > 0) {
+      updatePointer(event.touches[0].clientX, event.touches[0].clientY);
+    }
+  }, { passive: true });
+
+  hero.addEventListener("touchend", (event) => {
+    if (event.touches.length === 0) releasePointer();
+  }, { passive: true });
+
+  hero.addEventListener("touchcancel", releasePointer, { passive: true });
 
   window.addEventListener("resize", () => {
     if (resizeFrame !== null) cancelAnimationFrame(resizeFrame);
