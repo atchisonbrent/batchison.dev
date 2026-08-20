@@ -22,6 +22,8 @@ assets/js/reveal.js    Scroll-reveal via IntersectionObserver
 assets/js/destruct.js  Easter egg: the terminal's red dot self-destructs
                        the site (projectile-physics debris, WAAPI)
 assets/fonts/          Self-hosted variable WOFF2 (Inter, JetBrains Mono)
+tests/validate_site.py Static content and integration acceptance checks
+scripts/qa.sh          One-command static, JS, server, and screenshot QA
 ```
 
 ## Run locally
@@ -33,6 +35,16 @@ python3 -m http.server 8000
 ```
 
 That's it - static files, any server works.
+
+## Verify changes
+
+```sh
+./scripts/qa.sh
+```
+
+The command uses only Python, Node's syntax checker, curl, and the installed
+Firefox. It prints a temporary directory containing desktop/mobile screenshots;
+no QA artifacts or browser dependencies are committed.
 
 ## How it's served
 

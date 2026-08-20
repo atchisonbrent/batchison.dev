@@ -61,7 +61,20 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
 
 ## Verification
 
-No test suite, no headless browser in the repo. Verify statically:
-`python3 -m http.server 8000` for a local look, programmatic checks
-(node one-liners) for things like palette parity, and DevTools after
-deploy for CSP/caching errors.
+Run the repo-owned zero-dependency QA command:
+
+```sh
+./scripts/qa.sh
+```
+
+It runs the stdlib site validator, checks every JS module with `node --check`,
+starts an isolated local server, and uses stock Firefox to write normal
+desktop/mobile plus deterministic no-JS full-content screenshots to a printed
+temporary directory. The no-JS captures are intentional: Firefox screenshots
+before the ES module graph and `IntersectionObserver` settle, while this site's
+fallback exposes every card and hides dead controls. The script uses
+`--no-remote` and unique disposable profiles so an already-running personal
+Firefox instance cannot consume the request. Do not add Playwright merely for
+screenshots unless interaction testing becomes a real recurring requirement.
+
+After deploy, inspect DevTools for CSP/caching errors.
