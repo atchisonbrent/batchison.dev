@@ -54,6 +54,12 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
   in-block comment support is undocumented in the Pages parser.
 - All motion respects `prefers-reduced-motion` (shared check in
   `assets/js/motion.js`). New effects must too.
+- **Hero physics is content-only.** `assets/js/hero.js` may wrap and move the
+  eyebrow, title, description, and status text; keep buttons and
+  `.private-surfaces` outside `HERO_PHYSICS_TARGETS`. Glyphs are spring-bound
+  to their reading positions, collide through a spatial grid, ignore touch
+  scrolling, and must settle back to exact zero. Update the interaction checks
+  in `tests/validate_site.py` if the target contract intentionally changes.
 - Fonts, favicon, everything is same-origin. The CSP has no third-party
   allowances and `connect-src` is `'self'` (the stale-module watchdog in
   `boot.js` re-fetches the module graph) - adding any external request

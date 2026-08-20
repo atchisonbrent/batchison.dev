@@ -266,20 +266,14 @@ a:hover { text-decoration: underline; }
   font-weight: 800;
   width: fit-content;
 }
-/* JS arms a local spectral field that follows the pointer through the glyphs.
-   The fallback is ordinary text; reduced-motion users never receive the class. */
-.hero-title.hero-signal {
-  color: transparent;
-  background:
-    radial-gradient(
-      circle 180px at var(--hero-x, -240px) var(--hero-y, 50%),
-      var(--dot-1) 0%,
-      var(--dot-2) 34%,
-      var(--dot-3) 58%,
-      var(--text) 82%
-    );
-  background-clip: text;
-  -webkit-background-clip: text;
+.hero-physics-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.hero-physics-char {
+  display: inline-block;
+  position: relative;
+  pointer-events: none;
 }
 .hero-subtitle {
   font-size: clamp(1.05rem, 2.4vw, 1.25rem);
