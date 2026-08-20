@@ -87,6 +87,7 @@ export function initHeroPhysics() {
   let frameId = null;
   let resizeFrame = null;
   let settleDeadline = 0;
+  let layoutWidth = window.innerWidth;
 
   function resetParticles() {
     particles.forEach((particle) => {
@@ -290,7 +291,15 @@ export function initHeroPhysics() {
     releasePointer();
   }, { passive: true });
 
-  hero.addEventListener("pointercancel", releasePointer, { passive: true });
+  function handlePointerCancel(event) {
+    // Browsers emit pointercancel when a touch becomes native scrolling. The
+    // touch stream continues independently, so releasing here creates the
+    // visible snap/restart cycle users perceive as twitching.
+    if (event.pointerType === "touch") return;
+    releasePointer();
+  }
+
+  hero.addEventListener("pointercancel", handlePointerCancel, { passive: true });
 
   hero.addEventListener("touchstart", (event) => {
     if (event.touches.length > 0) {
@@ -310,7 +319,19 @@ export function initHeroPhysics() {
 
   hero.addEventListener("touchcancel", releasePointer, { passive: true });
 
+  window.addEventListener("scroll", () => {
+    // During a vertical swipe the finger stays in viewport coordinates while
+    // the document moves underneath it. Re-render against the new scroll
+    // offset even when a browser coalesces or pauses touchmove delivery.
+    if (pointer.active) scheduleFrame();
+  }, { passive: true });
+
   window.addEventListener("resize", () => {
+    // Mobile browser chrome opening/closing changes only viewport height. Text
+    // layout has not changed, and recaching here resets every displaced glyph
+    // mid-swipe. Width changes still represent a real reflow/orientation event.
+    if (window.innerWidth === layoutWidth) return;
+    layoutWidth = window.innerWidth;
     if (resizeFrame !== null) cancelAnimationFrame(resizeFrame);
     resizeFrame = requestAnimationFrame(() => {
       resizeFrame = null;

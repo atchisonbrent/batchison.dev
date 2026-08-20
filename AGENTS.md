@@ -59,11 +59,14 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
   `.private-surfaces` outside `HERO_PHYSICS_TARGETS`. Glyphs are spring-bound
   to their reading positions, collide through a spatial grid, and must settle
   back to exact zero. Mouse and touch share the broad, forgiving field; touch
-  listeners stay passive so native page scrolling remains in charge. Buttons
-  and `.private-surfaces` remain outside the target list. The direct-contact
-  punch experiment was less satisfying in practice. Keep damping modestly
-  heavier and glyph restitution lower than the original so it remains lively
-  without becoming a trampoline. Update the checks in
+  listeners stay passive so native page scrolling remains in charge. A touch
+  `pointercancel` marks promotion to native panning, not release, and height-only
+  viewport resizes from mobile browser chrome must not recache glyph homes.
+  Active scrolling schedules fresh physics frames so the document continues
+  interacting beneath the finger. Buttons and `.private-surfaces` remain outside
+  the target list. The direct-contact punch experiment was less satisfying in
+  practice. Keep damping modestly heavier and glyph restitution lower than the
+  original so it remains lively without becoming a trampoline. Update the checks in
   `tests/validate_site.py` if the target contract intentionally changes.
 - Fonts, favicon, everything is same-origin. The CSP has no third-party
   allowances and `connect-src` is `'self'` (the stale-module watchdog in
