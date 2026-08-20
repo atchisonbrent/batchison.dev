@@ -19,6 +19,7 @@ assets/js/effects.js   Pointer effects: card spotlight, word magnetism,
                        chip gradient field (one shared rAF loop)
 assets/js/projects.js  Project pagination, FLIP shuffle, expand/collapse
 assets/js/reveal.js    Scroll-reveal via IntersectionObserver
+assets/js/hero.js      Pointer-following spectral signal in the hero title
 assets/js/destruct.js  Easter egg: the terminal's red dot self-destructs
                        the site (projectile-physics debris, WAAPI)
 assets/fonts/          Self-hosted variable WOFF2 (Inter, JetBrains Mono)

@@ -29,7 +29,7 @@
   <link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/jetbrains-mono-var-latin.woff2" as="font" type="font/woff2" crossorigin />
 
-  <link rel="stylesheet" href="assets/css/style.css?v=14" />
+  <link rel="stylesheet" href="assets/css/style.css?v=15" />
 
   <noscript>
     <style>
@@ -105,6 +105,12 @@
           <span class="status-dot" aria-hidden="true"></span>
           <span>Austin, TX &middot; Homelab online</span>
         </div>
+        <nav class="private-surfaces" aria-label="Private surfaces">
+          <span class="private-surfaces-label">Private surfaces <span aria-hidden="true">/</span> Access required</span>
+          <a href="https://hermes.batchison.dev" target="_blank" rel="noopener" title="Open Hermes through Cloudflare Access">Hermes<span aria-hidden="true"> ↗</span></a>
+          <a href="https://dashboard.batchison.dev" target="_blank" rel="noopener" title="Open the Hermes dashboard through Cloudflare Access">Dashboard<span aria-hidden="true"> ↗</span></a>
+          <a href="https://metrics.batchison.dev" target="_blank" rel="noopener" title="Open homelab metrics through Cloudflare Access">Metrics<span aria-hidden="true"> ↗</span></a>
+        </nav>
       </div>
     </section>
 
@@ -387,30 +393,30 @@
             <div class="project-tag">Infra / Security / IaC</div>
             <h3>Homelab control plane</h3>
             <ul class="card-points">
-              <li>Exact-host Cloudflare Access applications in front of every published private service</li>
-              <li>Origins bind only to Tailnet addresses; LAN probes fail by design</li>
-              <li>Declarative tunnel, DNS, Access, and R2-backed OpenTofu state with pre-apply snapshots</li>
-              <li>Bitwarden Secrets Manager feeds mode-0400 files - credentials stay out of Git and container metadata</li>
+              <li>Exact-host Cloudflare Access guards every published private service</li>
+              <li>Tailnet-only origins reject the same probes over the LAN</li>
+              <li>OpenTofu owns tunnel, DNS, Access, and R2-backed state</li>
+              <li>Bitwarden writes file-backed secrets; Git and Docker metadata stay clean</li>
             </ul>
           </article>
           <article class="project-card reveal">
             <div class="project-tag">Containers / Observability</div>
             <h3>Private operations portal</h3>
             <ul class="card-points">
-              <li>Homepage handles presentation; Beszel owns host telemetry and history instead of one tool pretending to be both</li>
-              <li>Digest-pinned containers run read-only, capability-free, and bound only to Ponkerton's Tailnet address</li>
-              <li>A loopback GET-only Docker proxy and networkless SMART sidecar expose metrics without handing the dashboard root</li>
-              <li>Cloudflare identity maps to admin or read-only users while application auth remains available for recovery</li>
+              <li>Homepage presents; Beszel keeps host telemetry and history</li>
+              <li>Digest-pinned containers run read-only with no capabilities</li>
+              <li>GET-only Docker proxy and isolated SMART cache avoid root authority</li>
+              <li>Cloudflare SSO maps roles; password auth stays available for recovery</li>
             </ul>
           </article>
           <article class="project-card reveal">
             <div class="project-tag">AI / Networking</div>
             <h3>Wake-on-demand local inference</h3>
             <ul class="card-points">
-              <li>A sleep-safe model catalog answers locally without waking the RTX 5090 workstation</li>
-              <li>Inference requests trigger Wake-on-LAN, wait for Windows, Tailscale, and LM Studio, then stream through</li>
-              <li>The loopback-only relay stores no model API credential and publishes nothing to the LAN</li>
-              <li>One OpenAI-compatible endpoint hides power state without pretending startup latency disappeared</li>
+              <li>Sleep-safe catalog queries do not wake the RTX 5090 workstation</li>
+              <li>Inference sends Wake-on-LAN, waits for LM Studio, then streams through</li>
+              <li>Loopback relay stores no API credential and exposes no LAN listener</li>
+              <li>One OpenAI-compatible endpoint hides power state, not startup latency</li>
             </ul>
           </article>
           <article class="project-card reveal">
@@ -662,6 +668,6 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></svg>
   </button>
 
-  <script type="module" src="assets/js/main.js?v=9"></script>
+  <script type="module" src="assets/js/main.js?v=10"></script>
 </body>
 </html>

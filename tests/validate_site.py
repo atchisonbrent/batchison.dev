@@ -2,6 +2,7 @@
 """Static acceptance checks for the public site."""
 
 from html.parser import HTMLParser
+from html import unescape
 from pathlib import Path
 import re
 
@@ -79,6 +80,39 @@ def main() -> None:
         raise AssertionError("Versioned stylesheet reference is required")
     require(int(css_ref.group(1)) >= 14, "Stylesheet cache key must remain versioned")
     require("@media (max-width: 760px)" in css, "Mobile breakpoint must remain present")
+
+    private_surfaces = {
+        "Hermes": "https://hermes.batchison.dev",
+        "Dashboard": "https://dashboard.batchison.dev",
+        "Metrics": "https://metrics.batchison.dev",
+    }
+    require('aria-label="Private surfaces"' in html, "Hero must expose a labeled private-surfaces link rail")
+    require("Access required" in html, "Private surfaces must disclose the Access boundary")
+    for label, url in private_surfaces.items():
+        require(f'href="{url}"' in html, f"Missing private surface URL: {url}")
+        require(f">{label}<" in html, f"Missing private surface label: {label}")
+
+    project_blocks = re.findall(
+        r'<article class="project-card reveal">(.*?)</article>',
+        html,
+        flags=re.DOTALL,
+    )
+    require(len(project_blocks) == 15, "Expected exactly 15 project cards")
+    for block in project_blocks:
+        title_match = re.search(r"<h3>(.*?)</h3>", block, flags=re.DOTALL)
+        title = unescape(re.sub(r"<[^>]+>", "", title_match.group(1))).strip() if title_match else "untitled"
+        bullets = [
+            unescape(re.sub(r"<[^>]+>", "", item)).strip()
+            for item in re.findall(r"<li>(.*?)</li>", block, flags=re.DOTALL)
+        ]
+        require(len(bullets) == 4, f"{title}: project cards must have exactly four scan points")
+        require(max(map(len, bullets)) <= 80, f"{title}: a scan point exceeds 80 characters")
+        require(220 <= sum(map(len, bullets)) <= 300, f"{title}: total card copy falls outside the 220-300 character budget")
+
+    require("initHeroSignal" in (ROOT / "assets/js/main.js").read_text(), "Hero signal effect must be initialized")
+    require((ROOT / "assets/js/hero.js").exists(), "Hero signal effect must live in its own module")
+    require(".hero-title.hero-signal" in css, "Hero signal styling is missing")
+    require(int(css_ref.group(1)) >= 15, "Hero styling must bump the immutable CSS cache key")
 
     require(html.count("Homelab control plane") == 1, "Homelab control plane must appear exactly once")
     require(html.count("Private operations portal") == 1, "Private operations portal must appear exactly once")

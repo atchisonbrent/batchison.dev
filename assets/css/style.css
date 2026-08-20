@@ -264,6 +264,22 @@ a:hover { text-decoration: underline; }
   letter-spacing: -0.03em;
   margin: 0 0 20px;
   font-weight: 800;
+  width: fit-content;
+}
+/* JS arms a local spectral field that follows the pointer through the glyphs.
+   The fallback is ordinary text; reduced-motion users never receive the class. */
+.hero-title.hero-signal {
+  color: transparent;
+  background:
+    radial-gradient(
+      circle 180px at var(--hero-x, -240px) var(--hero-y, 50%),
+      var(--dot-1) 0%,
+      var(--dot-2) 34%,
+      var(--dot-3) 58%,
+      var(--text) 82%
+    );
+  background-clip: text;
+  -webkit-background-clip: text;
 }
 .hero-subtitle {
   font-size: clamp(1.05rem, 2.4vw, 1.25rem);
@@ -297,6 +313,32 @@ a:hover { text-decoration: underline; }
   font-family: var(--font-mono);
   font-size: 0.85rem;
   color: var(--text-muted);
+}
+.private-surfaces {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 14px;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+.private-surfaces-label { color: var(--text-muted); }
+.private-surfaces a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 3px;
+  color: var(--text-muted);
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.private-surfaces a:hover,
+.private-surfaces a:focus-visible {
+  color: var(--accent-strong);
+  text-decoration: underline;
+  text-decoration-color: currentColor;
 }
 .status-dot {
   width: 9px;
@@ -779,6 +821,8 @@ a:hover { text-decoration: underline; }
   .hero { padding: 64px 0 48px; }
   .section { padding: 56px 0; }
   .about-grid { grid-template-columns: 1fr; gap: 28px; }
+  .private-surfaces-label { flex-basis: 100%; }
+  .private-surfaces a { min-height: 44px; }
   .bento-grid { grid-template-columns: 1fr; }
   .bento-wide { grid-column: span 1; }
   .music-grid { grid-template-columns: 1fr; }
