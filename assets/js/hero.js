@@ -7,12 +7,12 @@ const HERO_PHYSICS_TARGETS = [
   ".hero-meta > span:last-child",
 ];
 
-const POINTER_RADIUS = 7;
-const SPRING = 0.055;
-const DAMPING = 0.72;
-const CONTACT_PUSH = 0.42;
-const IMPACT_MOMENTUM = 0.62;
-const COLLISION_RESTITUTION = 0.12;
+const POINTER_RADIUS = 30;
+const SPRING = 0.05;
+const DAMPING = 0.79;
+const POINTER_FORCE = 0.34;
+const POINTER_MOMENTUM = 0.1;
+const COLLISION_RESTITUTION = 0.18;
 const MAX_DISPLACEMENT = 84;
 const GRID_SIZE = 32;
 
@@ -82,9 +82,6 @@ export function initHeroPhysics() {
     lastX: 0,
     lastY: 0,
     lastTime: 0,
-    pathStartX: 0,
-    pathStartY: 0,
-    moved: false,
   };
 
   let frameId = null;
@@ -126,22 +123,6 @@ export function initHeroPhysics() {
 
   function currentY(particle) {
     return particle.homePageY - window.scrollY + particle.y;
-  }
-
-  function closestPointOnPointerPath(x, y) {
-    const dx = pointer.x - pointer.pathStartX;
-    const dy = pointer.y - pointer.pathStartY;
-    const lengthSquared = dx * dx + dy * dy;
-    if (lengthSquared < 0.001) return { x: pointer.x, y: pointer.y };
-    const progress = clamp(
-      ((x - pointer.pathStartX) * dx + (y - pointer.pathStartY) * dy) / lengthSquared,
-      0,
-      1,
-    );
-    return {
-      x: pointer.pathStartX + dx * progress,
-      y: pointer.pathStartY + dy * progress,
-    };
   }
 
   function spatialGrid() {
@@ -215,31 +196,17 @@ export function initHeroPhysics() {
 
     particles.forEach((particle) => {
       if (pointer.active) {
-        const px = currentX(particle);
-        const py = currentY(particle);
-        const contact = closestPointOnPointerPath(px, py);
-        const dx = px - contact.x;
-        const dy = py - contact.y;
+        const dx = currentX(particle) - pointer.x;
+        const dy = currentY(particle) - pointer.y;
         const minimum = POINTER_RADIUS + particle.radius;
         const distanceSquared = dx * dx + dy * dy;
         if (distanceSquared < minimum * minimum) {
           const distance = Math.sqrt(distanceSquared) || 0.001;
-          const penetration = minimum - distance;
+          const overlap = 1 - distance / minimum;
           const nx = distance > 0.01 ? dx / distance : 1;
           const ny = distance > 0.01 ? dy / distance : 0;
-
-          // Positional correction makes the cursor a solid collider. Momentum
-          // is consumed once per movement sample: a slow pass nudges, while a
-          // fast pass lands as an actual punch instead of a proximity field.
-          particle.x += nx * penetration * CONTACT_PUSH;
-          particle.y += ny * penetration * CONTACT_PUSH;
-          if (pointer.moved) {
-            const impact = clamp(Math.hypot(pointer.vx, pointer.vy) / 16, 0, 1);
-            particle.vx += pointer.vx * impact * IMPACT_MOMENTUM +
-              nx * penetration * CONTACT_PUSH;
-            particle.vy += pointer.vy * impact * IMPACT_MOMENTUM +
-              ny * penetration * CONTACT_PUSH;
-          }
+          particle.vx += nx * overlap * POINTER_FORCE * minimum + pointer.vx * overlap * POINTER_MOMENTUM;
+          particle.vy += ny * overlap * POINTER_FORCE * minimum + pointer.vy * overlap * POINTER_MOMENTUM;
         }
       }
 
@@ -257,7 +224,6 @@ export function initHeroPhysics() {
         particle.y *= scale;
       }
     });
-    pointer.moved = false;
 
     // Two bounded passes keep overlapping glyphs apart without an O(n²) scan.
     resolveGlyphCollisions();
@@ -289,14 +255,10 @@ export function initHeroPhysics() {
     if (pointer.lastTime === 0) {
       pointer.vx = 0;
       pointer.vy = 0;
-      pointer.pathStartX = event.clientX;
-      pointer.pathStartY = event.clientY;
     } else {
       const elapsed = Math.max(8, now - pointer.lastTime);
       pointer.vx = clamp((event.clientX - pointer.lastX) / elapsed * 16, -24, 24);
       pointer.vy = clamp((event.clientY - pointer.lastY) / elapsed * 16, -24, 24);
-      pointer.pathStartX = pointer.lastX;
-      pointer.pathStartY = pointer.lastY;
     }
     pointer.x = event.clientX;
     pointer.y = event.clientY;
@@ -304,7 +266,6 @@ export function initHeroPhysics() {
     pointer.lastY = event.clientY;
     pointer.lastTime = now;
     pointer.active = true;
-    pointer.moved = true;
     settleDeadline = 0;
     scheduleFrame();
   }, { passive: true });

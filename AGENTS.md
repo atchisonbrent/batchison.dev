@@ -58,10 +58,10 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
   eyebrow, title, description, and status text; keep buttons and
   `.private-surfaces` outside `HERO_PHYSICS_TARGETS`. Glyphs are spring-bound
   to their reading positions, collide through a spatial grid, ignore touch
-  scrolling, and must settle back to exact zero. The pointer uses a small swept
-  collider: slow contact nudges, fast contact transfers velocity as a punch.
-  Keep damping intentionally heavy and glyph restitution low; do not turn it
-  back into a proximity field or trampoline. Update the interaction checks in
+  scrolling, and must settle back to exact zero. The pointer uses a broad,
+  forgiving field with modest momentum—the direct-contact punch experiment was
+  less satisfying in practice. Keep damping intentionally heavy and glyph
+  restitution low so the field does not become a trampoline. Update the checks in
   `tests/validate_site.py` if the target contract intentionally changes.
 - Fonts, favicon, everything is same-origin. The CSP has no third-party
   allowances and `connect-src` is `'self'` (the stale-module watchdog in
