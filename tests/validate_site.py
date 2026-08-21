@@ -100,9 +100,27 @@ def main() -> None:
         for paragraph in re.findall(r"<p>(.*?)</p>", about_match.group(1), re.DOTALL)
     ]
     about_text = " ".join(about_paragraphs)
-    require(len(about_paragraphs) == 2, "About must stay concise at exactly two paragraphs")
-    require(350 <= len(about_text) <= 650, "About copy must stay within the 350-650 character budget")
+    require(len(about_paragraphs) == 3, "About must use three balanced, substantive paragraphs")
+    require(750 <= len(about_text) <= 1000, "About copy must stay within the 750-1000 character budget")
     require("Security lives in code, not the prompt" in about_text, "About must preserve the security point of view")
+    require("failure modes" in about_text and "operational" in about_text, "About must explain the engineering point of view")
+
+    chip_match = re.search(r'<ul class="chip-list".*?>(.*?)</ul>', html, re.DOTALL)
+    if chip_match is None:
+        raise AssertionError("Focus-area chips cannot be parsed")
+    chips = [
+        " ".join(unescape(re.sub(r"<[^>]+>", "", item)).split())
+        for item in re.findall(r"<li>(.*?)</li>", chip_match.group(1), re.DOTALL)
+    ]
+    require(28 <= len(chips) <= 32, "Focus chips must be curated to 28-32 meaningful items")
+    for expected_chip in (
+        "Go", "Kubernetes", "TCP_INFO", "MCP", "Sandboxed eval",
+        "Context engineering", "Local inference", "Cloudflare Access",
+        "OpenTofu", "Bitwarden Secrets", "Beszel", "UniFi",
+    ):
+        require(expected_chip in chips, f"Missing current focus chip: {expected_chip}")
+    for stale_chip in ("Doppler", "FastMCP", "Local LLMs", "Cloudflare Tunnel"):
+        require(stale_chip not in chips, f"Stale or redundant focus chip remains: {stale_chip}")
 
     project_blocks = re.findall(
         r'<article class="project-card reveal">(.*?)</article>',

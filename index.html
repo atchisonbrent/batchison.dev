@@ -120,56 +120,60 @@
         <div class="about-grid">
           <div class="prose">
             <p>
-              Infrastructure engineer in Austin, working mostly in Go across
-              operators, distributed systems, and service infrastructure, with
-              Python for agent tooling. I turn fragile manual systems into
-              declarative, observable ones people can operate.
+              Infrastructure engineer building operators, distributed services,
+              and storage and network control planes. Go is primary; Python
+              handles agent tools. I start with failure modes - stale state,
+              partial outages, bounded queues, and rollback - then build
+              declarative, observable operational systems that stay honest when
+              dependencies fail.
             </p>
             <p>
-              Current focus is agent infrastructure: MCP servers, sandboxed
-              execution, model routing, and efficient context handling. Security
-              lives in code, not the prompt. My homelab is the proving ground -
-              dual-WAN and 10G networking, private observability, local inference,
-              storage, and media behind Cloudflare Access and Tailscale.
+              Current focus is agent infrastructure: production harnesses, MCP
+              servers, sandboxed execution, model routing, and side channels that
+              keep bulky results out of context. Security lives in code, not the
+              prompt. Schemas, permissions, read-only boundaries, and explicit
+              authority decide what an agent can actually do.
+            </p>
+            <p>
+              My homelab is the proving ground: dual-WAN and 10G networking,
+              70 TB of usable storage, private observability, media automation,
+              and RTX 5090 inference that wakes on demand. Hermes reaches those
+              systems through bounded APIs; private services stay behind
+              Cloudflare Access and Tailscale, with secrets in Bitwarden and
+              configuration in Git and OpenTofu.
             </p>
           </div>
           <ul class="chip-list" aria-label="Focus areas" id="chip-list">
             <li>Go</li>
             <li>Python</li>
             <li>Kubernetes</li>
-            <li>kubebuilder</li>
             <li>Operators</li>
-            <li>CRDs</li>
             <li>CEL</li>
-            <li>envtest</li>
-            <li>gRPC</li>
             <li>ConnectRPC</li>
             <li>Prometheus</li>
             <li>VictoriaMetrics</li>
-            <li>Grafana</li>
             <li>ClickHouse</li>
-            <li>Vector</li>
-            <li>CockroachDB</li>
-            <li>Ceph</li>
             <li>Envoy</li>
+            <li>TCP_INFO</li>
             <li>SWIM</li>
             <li>HRW hashing</li>
             <li>RDMA</li>
-            <li>TCP_INFO</li>
-            <li>Kafka</li>
-            <li>Temporal</li>
-            <li>Vault</li>
-            <li>Doppler</li>
             <li>GitHub Actions</li>
-            <li>ArgoCD</li>
+            <li>Test sharding</li>
             <li>Kargo</li>
             <li>Helm</li>
             <li>MCP</li>
-            <li>FastMCP</li>
+            <li>Sandboxed eval</li>
             <li>Model routing</li>
-            <li>Local LLMs</li>
-            <li>Docker</li>
-            <li>Cloudflare Tunnel</li>
+            <li>Context engineering</li>
+            <li>Local inference</li>
+            <li>LM Studio</li>
+            <li>Cloudflare Access</li>
+            <li>Tailscale</li>
+            <li>OpenTofu</li>
+            <li>Bitwarden Secrets</li>
+            <li>Beszel</li>
+            <li>UniFi</li>
           </ul>
         </div>
       </div>
