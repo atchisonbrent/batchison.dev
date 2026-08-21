@@ -27,11 +27,10 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
 
 ## Coupled edits - change one, change both
 
-- **Dark palette is duplicated in `style.css`.** The
-  `[data-theme="dark"]` block and the
-  `@media (prefers-color-scheme: dark) { html:not([data-theme]) }` block
-  directly below it must stay identical (11 vars). The second is the
-  no-JS fallback; there's no preprocessor to share them.
+- **Dark palette is duplicated in `style.css`.** Keep the shared theme variables
+  in `[data-theme="dark"]` and the adjacent no-JS
+  `prefers-color-scheme: dark` fallback synchronized. Decorative variables used
+  only by scripted effects do not need to be copied into the fallback.
 - **`<html>` carries no `data-theme` attribute in the markup.**
   `assets/js/boot.js` (blocking, in `<head>`) sets it pre-paint; its
   *absence* is the no-JS signal. Never add a static `data-theme` back.
@@ -54,25 +53,14 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
   in-block comment support is undocumented in the Pages parser.
 - All motion respects `prefers-reduced-motion` (shared check in
   `assets/js/motion.js`). New effects must too.
-- **Hero physics is content-only.** `assets/js/hero.js` may wrap and move the
-  eyebrow, title, description, and status text; keep buttons and
-  `.private-surfaces` outside `HERO_PHYSICS_TARGETS`. Glyphs are spring-bound
-  to their reading positions, collide through a spatial grid, and must settle
-  back to exact zero. Mouse and touch share the broad, forgiving field; touch
-  listeners stay passive so native page scrolling remains in charge. A touch
-  `pointercancel` marks promotion to native panning, not release, and height-only
-  viewport resizes from mobile browser chrome must not recache glyph homes.
-  Active scrolling schedules fresh physics frames so the document continues
-  interacting beneath the finger. Buttons and `.private-surfaces` remain outside
-  the target list. The direct-contact punch experiment was less satisfying in
-  practice. Keep damping modestly heavier and glyph restitution lower than the
-  original so it remains lively without becoming a trampoline. Update the checks in
-  `tests/validate_site.py` if the target contract intentionally changes.
+- **Hero physics is content-only.** `assets/js/hero.js` may move hero text, but
+  controls and `.private-surfaces` must remain stationary and clickable. Keep
+  touch listeners passive: the effect follows touch movement without taking
+  control of native scrolling. It must settle cleanly and honor reduced motion.
+  Update `tests/validate_site.py` when intentionally changing this contract.
 - **Off-Screen has explicit content ownership.** The terminal owns current
-  homelab hardware/topology; do not add another card that repeats its inventory.
-  The other cards should add personal context. At 761-900px every bento card is
-  full-width—mixing single and wide spans at iPad widths strands half-rows.
-  Keep the 834px tablet captures in `scripts/qa.sh` whenever this grid changes.
+  homelab hardware/topology; other cards add personal context rather than
+  repeating that inventory. Preserve the balanced single-column tablet flow.
 - Fonts, favicon, everything is same-origin. The CSP has no third-party
   allowances and `connect-src` is `'self'` (the stale-module watchdog in
   `boot.js` re-fetches the module graph) - adding any external request
@@ -86,14 +74,9 @@ Run the repo-owned zero-dependency QA command:
 ./scripts/qa.sh
 ```
 
-It runs the stdlib site validator, checks every JS module with `node --check`,
-starts an isolated local server, and uses stock Firefox to write normal
-desktop/mobile plus deterministic no-JS full-content screenshots to a printed
-temporary directory. The no-JS captures are intentional: Firefox screenshots
-before the ES module graph and `IntersectionObserver` settle, while this site's
-fallback exposes every card and hides dead controls. The script uses
-`--no-remote` and unique disposable profiles so an already-running personal
-Firefox instance cannot consume the request. Do not add Playwright merely for
-screenshots unless interaction testing becomes a real recurring requirement.
+It runs static validation, JavaScript syntax checks, whitespace checks, a local
+server smoke test, and Firefox captures at desktop, tablet, and mobile widths.
+Review the generated screenshots for layout changes. Keep this dependency-free
+unless recurring interaction tests or visual baselines justify browser tooling.
 
 After deploy, inspect DevTools for CSP/caching errors.

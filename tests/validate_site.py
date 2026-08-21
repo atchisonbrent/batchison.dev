@@ -58,7 +58,7 @@ def main() -> None:
         "Wake-on-demand local inference",
         "Homelab control plane",
         "Private operations portal",
-        "70 TB usable",
+        "69 TB usable",
         "RTX 5090",
         "Cloudflare Access",
         "Beszel",

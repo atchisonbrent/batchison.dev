@@ -1,6 +1,6 @@
 const STORAGE_KEY = "batchison-theme";
 
-// The inline head script applies the saved theme pre-paint; this only wires
+// The blocking boot script applies the saved theme pre-paint; this only wires
 // the toggle.
 export function initTheme() {
   const root = document.documentElement;
