@@ -67,12 +67,14 @@ capture() {
 
 # JS-enabled first viewports verify the normal hero, navigation, and mobile shell.
 capture desktop 1440 1600 on
+capture tablet 834 1194 on
 capture mobile 390 844 on
 
 # Firefox screenshots before ES modules settle. The site's no-JS fallback is
 # therefore the deterministic way to expose every card for full-content layout
 # review; interactive JS is checked separately above.
 capture full-desktop 1440 10000 off
+capture full-tablet 834 15000 off
 capture full-mobile 390 15000 off
 
 for image in "$OUT"/*.png; do

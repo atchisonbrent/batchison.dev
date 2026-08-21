@@ -68,6 +68,11 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
   practice. Keep damping modestly heavier and glyph restitution lower than the
   original so it remains lively without becoming a trampoline. Update the checks in
   `tests/validate_site.py` if the target contract intentionally changes.
+- **Off-Screen has explicit content ownership.** The terminal owns current
+  homelab hardware/topology; do not add another card that repeats its inventory.
+  The other cards should add personal context. At 761-900px every bento card is
+  full-width—mixing single and wide spans at iPad widths strands half-rows.
+  Keep the 834px tablet captures in `scripts/qa.sh` whenever this grid changes.
 - Fonts, favicon, everything is same-origin. The CSP has no third-party
   allowances and `connect-src` is `'self'` (the stale-module watchdog in
   `boot.js` re-fetches the module graph) - adding any external request

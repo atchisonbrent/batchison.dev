@@ -809,6 +809,14 @@ a:hover { text-decoration: underline; }
   .project-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
+/* iPad-class widths are too narrow for the desktop bento rhythm: a wide card
+   following a single card strands half a row. Use a deliberate reading column
+   rather than leaving holes that look like missing content. */
+@media (min-width: 761px) and (max-width: 900px) {
+  .bento-card { grid-column: 1 / -1; }
+  .terminal-card { grid-row: auto; }
+}
+
 @media (max-width: 760px) {
   .nav-links { display: none; }
   .menu-toggle { display: inline-flex; }

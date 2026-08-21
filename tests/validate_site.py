@@ -62,7 +62,7 @@ def main() -> None:
         "RTX 5090",
         "Cloudflare Access",
         "Beszel",
-        "Bitwarden Secrets Manager",
+        "Bitwarden Secrets",
     )
     for text in expected_copy:
         require(text in html, f"Missing expected public-site copy: {text}")
@@ -80,6 +80,9 @@ def main() -> None:
         raise AssertionError("Versioned stylesheet reference is required")
     require(int(css_ref.group(1)) >= 14, "Stylesheet cache key must remain versioned")
     require("@media (max-width: 760px)" in css, "Mobile breakpoint must remain present")
+    require("@media (min-width: 761px) and (max-width: 900px)" in css, "Tablet-specific layout breakpoint must remain present")
+    require(".bento-card { grid-column: 1 / -1; }" in css, "Tablet Off-Screen cards must use a balanced full-width flow")
+    require(".terminal-card { grid-row: auto; }" in css, "Tablet terminal must not reserve a phantom second grid row")
 
     private_surfaces = {
         "Hermes": "https://hermes.batchison.dev",
@@ -170,12 +173,19 @@ def main() -> None:
     require('window.addEventListener("scroll"' in hero_js, "Active touch physics must continue while the document scrolls under the finger")
     require(".hero-physics-char" in css, "Hero physics glyph styling is missing")
     require(".hero-title.hero-signal" not in css, "Rejected spectral styling must be removed")
-    require(int(css_ref.group(1)) >= 16, "Hero physics styling must bump the immutable CSS cache key")
+    require(int(css_ref.group(1)) >= 17, "Tablet layout styling must bump the immutable CSS cache key")
 
     require(html.count("Homelab control plane") == 1, "Homelab control plane must appear exactly once")
     require(html.count("Private operations portal") == 1, "Private operations portal must appear exactly once")
     require(html.count("Wake-on-demand local inference") == 1, "Wake-on-demand inference must appear exactly once")
     require(html.count('class="project-card reveal"') == 15, "Expanded project grid must end with a complete three-card row")
+    require("The Lab" not in html, "Duplicative Lab card must not repeat the terminal inventory")
+    require("Terraria server on the lab" not in html, "Stale Terraria hosting claim must not return")
+    require("Audyssey XT32" in html and "Wharfedale karaoke zone" in html, "Acoustics card must describe the current system")
+
+    qa_script = (ROOT / "scripts/qa.sh").read_text()
+    require("capture tablet 834 1194 on" in qa_script, "QA must cover the iPad-width viewport")
+    require("capture full-tablet 834 15000 off" in qa_script, "QA must expose the complete tablet card flow")
 
     print("site validation: ok")
 
