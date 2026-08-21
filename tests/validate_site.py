@@ -181,6 +181,8 @@ def main() -> None:
     require(html.count('class="project-card reveal"') == 15, "Expanded project grid must end with a complete three-card row")
     require("The Lab" not in html, "Duplicative Lab card must not repeat the terminal inventory")
     require("Terraria server on the lab" not in html, "Stale Terraria hosting claim must not return")
+    require(html.count("Reading") == 1, "Off-Screen must include one distinct reading card")
+    require("The Culture" in html and "Iain M. Banks" in html, "Reading card must reflect the current sci-fi interest")
     require("Audyssey XT32" in html and "Wharfedale karaoke zone" in html, "Acoustics card must describe the current system")
 
     qa_script = (ROOT / "scripts/qa.sh").read_text()
