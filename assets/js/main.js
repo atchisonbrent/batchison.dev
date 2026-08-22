@@ -4,13 +4,13 @@ import { initEffects } from "./effects.js";
 import { initProjects } from "./projects.js";
 import { initReveal } from "./reveal.js";
 import { initDestruct } from "./destruct.js";
-import { initTextPhysics } from "./hero.js";
+import { initHeroPhysics } from "./hero.js";
 
 initTheme();
 initMenu();
 initAnchors();
 initBackToTop();
-initTextPhysics();
+initHeroPhysics();
 
 const yearEl = document.getElementById("year");
 if (yearEl) yearEl.textContent = String(new Date().getFullYear());

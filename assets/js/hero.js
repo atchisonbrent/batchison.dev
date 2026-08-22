@@ -1,21 +1,10 @@
 import { prefersReducedMotion } from "./motion.js";
 
-const TEXT_PHYSICS_FIELDS = [
-  {
-    root: ".hero",
-    targets: [
-      ".hero-eyebrow",
-      ".hero-title",
-      ".hero-subtitle",
-      ".hero-cta .btn",
-      ".hero-meta > span:last-child",
-      ".private-surfaces-label",
-    ],
-  },
-  {
-    root: "#about",
-    targets: [".prose p"],
-  },
+const HERO_PHYSICS_TARGETS = [
+  ".hero-eyebrow",
+  ".hero-title",
+  ".hero-subtitle",
+  ".hero-meta > span:last-child",
 ];
 
 const POINTER_RADIUS = 30;
@@ -25,8 +14,6 @@ const POINTER_FORCE = 0.34;
 const POINTER_MOMENTUM = 0.1;
 const COLLISION_RESTITUTION = 0.18;
 const MAX_DISPLACEMENT = 84;
-const CONTROL_MAX_DISPLACEMENT = 16;
-const STATUS_MAX_DISPLACEMENT = 28;
 const GRID_SIZE = 32;
 
 function clamp(value, min, max) {
@@ -46,12 +33,12 @@ function wrapGlyphs(element) {
     if (wordIndex > 0) element.appendChild(document.createTextNode(" "));
 
     const wordSpan = document.createElement("span");
-    wordSpan.className = "text-physics-word";
+    wordSpan.className = "hero-physics-word";
     wordSpan.setAttribute("aria-hidden", "true");
 
     for (const character of word) {
       const glyph = document.createElement("span");
-      glyph.className = "text-physics-char";
+      glyph.className = "hero-physics-char";
       glyph.textContent = character;
       wordSpan.appendChild(glyph);
       glyphs.push(glyph);
@@ -59,39 +46,32 @@ function wrapGlyphs(element) {
     element.appendChild(wordSpan);
   });
 
-  element.classList.add("text-physics-text");
+  element.classList.add("hero-physics-text");
   return glyphs;
 }
 
-function initPhysicsField(field) {
-  const root = document.querySelector(field.root);
-  if (!root) return;
+export function initHeroPhysics() {
+  if (prefersReducedMotion) return;
 
-  const glyphElements = field.targets.flatMap((selector) => {
-    return Array.from(root.querySelectorAll(selector)).flatMap(wrapGlyphs);
+  const hero = document.querySelector(".hero");
+  if (!hero) return;
+
+  const glyphElements = HERO_PHYSICS_TARGETS.flatMap((selector) => {
+    const element = hero.querySelector(selector);
+    return element ? wrapGlyphs(element) : [];
   });
   if (glyphElements.length === 0) return;
 
-  const particles = glyphElements.map((element) => {
-    const owner = element.closest(".text-physics-text");
-    const maxDisplacement = owner.matches(".btn")
-      ? CONTROL_MAX_DISPLACEMENT
-      : owner.matches(".private-surfaces-label")
-        ? STATUS_MAX_DISPLACEMENT
-        : MAX_DISPLACEMENT;
-    return {
-      element,
-      owner,
-      maxDisplacement,
-      homePageX: 0,
-      homePageY: 0,
-      x: 0,
-      y: 0,
-      vx: 0,
-      vy: 0,
-      radius: 4,
-    };
-  });
+  const particles = glyphElements.map((element) => ({
+    element,
+    homePageX: 0,
+    homePageY: 0,
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    radius: 4,
+  }));
 
   const pointer = {
     active: false,
@@ -146,14 +126,6 @@ function initPhysicsField(field) {
     return particle.homePageY - window.scrollY + particle.y;
   }
 
-  function clampParticle(particle) {
-    const displacement = Math.hypot(particle.x, particle.y);
-    if (displacement <= particle.maxDisplacement) return;
-    const scale = particle.maxDisplacement / displacement;
-    particle.x *= scale;
-    particle.y *= scale;
-  }
-
   function spatialGrid() {
     const grid = new Map();
     particles.forEach((particle, index) => {
@@ -180,7 +152,6 @@ function initPhysicsField(field) {
           nearby.forEach((otherIndex) => {
             if (otherIndex <= index) return;
             const other = particles[otherIndex];
-            if (other.owner !== particle.owner) return;
             const dx = currentX(other) - px;
             const dy = currentY(other) - py;
             const minimum = particle.radius + other.radius + 0.75;
@@ -247,13 +218,17 @@ function initPhysicsField(field) {
       particle.x += particle.vx;
       particle.y += particle.vy;
 
-      clampParticle(particle);
+      const displacement = Math.hypot(particle.x, particle.y);
+      if (displacement > MAX_DISPLACEMENT) {
+        const scale = MAX_DISPLACEMENT / displacement;
+        particle.x *= scale;
+        particle.y *= scale;
+      }
     });
 
     // Two bounded passes keep overlapping glyphs apart without an O(n²) scan.
     resolveGlyphCollisions();
     resolveGlyphCollisions();
-    particles.forEach(clampParticle);
 
     particles.forEach((particle) => {
       particle.element.style.transform =
@@ -304,14 +279,14 @@ function initPhysicsField(field) {
     scheduleFrame();
   }
 
-  root.addEventListener("pointermove", (event) => {
+  hero.addEventListener("pointermove", (event) => {
     // Touch has its own passive path below so native scrolling remains in
     // charge even after the browser promotes the gesture into a pan.
     if (event.pointerType === "touch") return;
     updatePointer(event.clientX, event.clientY);
   }, { passive: true });
 
-  root.addEventListener("pointerleave", (event) => {
+  hero.addEventListener("pointerleave", (event) => {
     if (event.pointerType === "touch") return;
     releasePointer();
   }, { passive: true });
@@ -324,25 +299,25 @@ function initPhysicsField(field) {
     releasePointer();
   }
 
-  root.addEventListener("pointercancel", handlePointerCancel, { passive: true });
+  hero.addEventListener("pointercancel", handlePointerCancel, { passive: true });
 
-  root.addEventListener("touchstart", (event) => {
+  hero.addEventListener("touchstart", (event) => {
     if (event.touches.length > 0) {
       updatePointer(event.touches[0].clientX, event.touches[0].clientY);
     }
   }, { passive: true });
 
-  root.addEventListener("touchmove", (event) => {
+  hero.addEventListener("touchmove", (event) => {
     if (event.touches.length > 0) {
       updatePointer(event.touches[0].clientX, event.touches[0].clientY);
     }
   }, { passive: true });
 
-  root.addEventListener("touchend", (event) => {
+  hero.addEventListener("touchend", (event) => {
     if (event.touches.length === 0) releasePointer();
   }, { passive: true });
 
-  root.addEventListener("touchcancel", releasePointer, { passive: true });
+  hero.addEventListener("touchcancel", releasePointer, { passive: true });
 
   window.addEventListener("scroll", () => {
     // During a vertical swipe the finger stays in viewport coordinates while
@@ -370,9 +345,4 @@ function initPhysicsField(field) {
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(cacheHomes);
   }
-}
-
-export function initTextPhysics() {
-  if (prefersReducedMotion) return;
-  TEXT_PHYSICS_FIELDS.forEach(initPhysicsField);
 }

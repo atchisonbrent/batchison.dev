@@ -1,9 +1,9 @@
 import { prefersReducedMotion } from "./motion.js";
 
 // Unified pointer effects: one rAF loop and one smoothed pointer drive the
-// card dot-grid spotlight and the chip hue field + magnetism. Chips cache
-// page-coord positions (stable across scroll); card rects are viewport-coord
-// and recached on scroll/resize.
+// card dot-grid spotlight, the About word magnetism, and the chip hue field
+// + magnetism. Words and chips cache page-coord positions (stable across
+// scroll); card rects are viewport-coord and recached on scroll/resize.
 //
 // Returns { recacheCards } so the project grid can request a card recache
 // after FLIP/page reorders, or null when nothing is active.
@@ -11,12 +11,39 @@ export function initEffects() {
   if (prefersReducedMotion) return null;
 
   const spotlightCards = document.querySelectorAll(".project-card, .bento-card, .stack-card");
+  const aboutProse = document.querySelector("#about .prose");
   const chipList = document.getElementById("chip-list");
   const chips = chipList ? Array.from(chipList.querySelectorAll("li")) : [];
 
-  if (spotlightCards.length === 0 && chips.length === 0) return null;
+  // Wrap About words in spans so each can be magnetized individually
+  let magWords = [];
+  if (aboutProse) {
+    aboutProse.querySelectorAll("p").forEach((p) => {
+      Array.from(p.childNodes).forEach((node) => {
+        if (node.nodeType !== Node.TEXT_NODE || !node.textContent.trim()) return;
+        const frag = document.createDocumentFragment();
+        node.textContent.split(/(\s+)/).forEach((part) => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) {
+            frag.appendChild(document.createTextNode(" "));
+          } else {
+            const span = document.createElement("span");
+            span.className = "mag-word";
+            span.textContent = part;
+            frag.appendChild(span);
+          }
+        });
+        p.replaceChild(frag, node);
+      });
+    });
+    magWords = Array.from(aboutProse.querySelectorAll(".mag-word"));
+  }
+
+  if (spotlightCards.length === 0 && magWords.length === 0 && chips.length === 0) return null;
 
   const CARD_REACH = 220; // 180px mask radius + margin
+  const WORD_RADIUS = 110;
+  const WORD_PUSH = 0.12; // negative translate = repel from pointer
   const CHIP_RADIUS = 130;
   const CHIP_PULL = 0.3;
   const CHIP_MAX_SCALE = 1.1;
@@ -29,6 +56,7 @@ export function initEffects() {
 
   let cardRects = [];
   const cardActive = [];
+  let wordPos = []; // word centers in page coords
   let chipRects = []; // chip boxes in page coords
   let chipListBox = null; // chip list bounds in page coords
   let fieldActive = false;
@@ -40,6 +68,17 @@ export function initEffects() {
     }
   }
 
+  function cacheWordPos() {
+    // Clear transforms first - getBoundingClientRect includes them
+    magWords.forEach((w) => { w.style.transform = ""; });
+    wordPos = magWords.map((w) => {
+      const r = w.getBoundingClientRect();
+      return {
+        x: r.left + r.width / 2 + window.scrollX,
+        y: r.top + r.height / 2 + window.scrollY,
+      };
+    });
+  }
 
   function cacheChipRects() {
     if (!chipList) return;
@@ -84,6 +123,7 @@ export function initEffects() {
       spotlightCards[i].style.setProperty("--mouse-y", "-999px");
       cardActive[i] = false;
     }
+    magWords.forEach((w) => { w.style.transform = ""; });
     fieldActive = false;
     clearChipStyles();
     hasTarget = false;
@@ -124,6 +164,21 @@ export function initEffects() {
 
     const sx = window.scrollX, sy = window.scrollY;
 
+    for (let j = 0; j < magWords.length; j++) {
+      const p = wordPos[j];
+      if (!p) continue;
+      const wdx = renderX - (p.x - sx);
+      const wdy = renderY - (p.y - sy);
+      const dist = Math.sqrt(wdx * wdx + wdy * wdy);
+      if (dist < WORD_RADIUS) {
+        const force = 1 - dist / WORD_RADIUS;
+        magWords[j].style.transform =
+          "translate(" + (-wdx * WORD_PUSH * force).toFixed(1) + "px," +
+          (-wdy * WORD_PUSH * force).toFixed(1) + "px)";
+      } else if (magWords[j].style.transform) {
+        magWords[j].style.transform = "";
+      }
+    }
 
     // Chip hue field + magnetism against cached page-coord boxes. Skip the
     // per-chip work while the pointer is far away; clear once on exit.
@@ -202,12 +257,14 @@ export function initEffects() {
 
   window.addEventListener("resize", () => {
     cacheCardRects();
+    cacheWordPos();
     cacheChipRects();
     if (hasTarget) scheduleFrame();
   });
 
   // Fonts settle late - page-coord caches need a final pass
   window.addEventListener("load", () => {
+    cacheWordPos();
     cacheChipRects();
   });
 
@@ -229,6 +286,7 @@ export function initEffects() {
   document.addEventListener("touchcancel", onTouchRelease, { passive: true });
 
   cacheCardRects();
+  cacheWordPos();
   cacheChipRects();
 
   return {
