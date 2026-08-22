@@ -266,11 +266,11 @@ a:hover { text-decoration: underline; }
   font-weight: 800;
   width: fit-content;
 }
-.hero-physics-word {
+.text-physics-word {
   display: inline-block;
   white-space: nowrap;
 }
-.hero-physics-char {
+.text-physics-char {
   display: inline-block;
   position: relative;
   pointer-events: none;
@@ -295,6 +295,7 @@ a:hover { text-decoration: underline; }
   transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
 }
 .btn:hover { text-decoration: none; transform: translateY(-1px); }
+.btn.text-physics-text { column-gap: 0.25em; }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { background: var(--accent-strong); }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--border); }
@@ -895,11 +896,6 @@ a:hover { text-decoration: underline; }
   position: relative;
   z-index: 1;
   text-shadow: 0 0 6px var(--surface), 0 0 3px var(--surface);
-}
-
-/* --- About word magnetism (spans injected by JS) --- */
-.mag-word {
-  display: inline-block;
 }
 
 /* --- Scroll reveal (opacity only - no transform, FLIP owns transforms) --- */
