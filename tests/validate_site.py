@@ -97,10 +97,11 @@ def main() -> None:
     require("@supports (animation-timeline: view())" in css, "Scroll-driven reveal must be feature-guarded")
     require("::view-transition-group(*.pc)" in css, "Project card view transitions must be styled by class")
     require("view-transition-name: none" in css, "The root must opt out of view transitions so the page stays live")
+    require("::view-transition { pointer-events: none; }" in css, "The view-transition overlay must not swallow clicks mid-tween (shuffle felt like it had a cooldown)")
     require("@starting-style" in css, "Reset control must animate in from display:none via @starting-style")
     reduced = re.findall(r"@media \(prefers-reduced-motion: reduce\)\s*\{(.*?)\n\}", css, re.DOTALL)
     require(any("::view-transition" in block for block in reduced), "Reduced motion must disable view-transition pseudo-element animation")
-    require(int(css_ref.group(1)) >= 19, "Rendering-layer changes must bump the immutable CSS cache key")
+    require(int(css_ref.group(1)) >= 20, "Rendering-layer changes must bump the immutable CSS cache key")
 
     projects_js = (ROOT / "assets/js/projects.js").read_text()
     reveal_js = (ROOT / "assets/js/reveal.js").read_text()

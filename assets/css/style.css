@@ -924,14 +924,18 @@ html.js-reveal .reveal.active {
    cannot fly across the footer - the pseudo-element layer ignores the grid's
    overflow clip. */
 :root { view-transition-name: none; }
+/* The transition overlay would otherwise swallow clicks for its whole
+   duration - the button feels like it has a cooldown. Let input reach the
+   live DOM; a new startViewTransition simply skips the running one. */
+::view-transition { pointer-events: none; }
 .project-card { view-transition-class: pc; }
 ::view-transition-group(*.pc) {
-  animation-duration: 260ms;
+  animation-duration: 220ms;
   animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
 }
 ::view-transition-old(*.pc),
 ::view-transition-new(*.pc) {
-  animation-duration: 180ms;
+  animation-duration: 140ms;
 }
 /* Page turns: swap the default cross-fade for a directional slide. Old-only
    groups sit where the card was, new-only groups where it lands, so the two
