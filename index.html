@@ -29,7 +29,7 @@
   <link rel="preload" href="assets/fonts/inter-var-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="assets/fonts/jetbrains-mono-var-latin.woff2" as="font" type="font/woff2" crossorigin />
 
-  <link rel="stylesheet" href="assets/css/style.css?v=18" />
+  <link rel="stylesheet" href="assets/css/style.css?v=19" />
 
   <noscript>
     <style>
@@ -128,11 +128,11 @@
               dependencies fail.
             </p>
             <p>
-              Current focus is agent infrastructure: production harnesses, MCP
-              servers, sandboxed execution, model routing, and side channels that
-              keep bulky results out of context. Security lives in code, not the
-              prompt. Schemas, permissions, read-only boundaries, and explicit
-              authority decide what an agent can actually do.
+              Current focus is agent infrastructure: MCP servers, sandboxed
+              execution, portable open-source skills, and research tooling where
+              the agent judges and stdlib code verifies. Security lives in code,
+              not the prompt. Schemas, typed events, and read-only boundaries
+              decide what an agent can actually do.
             </p>
             <p>
               My homelab is the proving ground: dual-WAN and 10G networking,
@@ -203,9 +203,9 @@
           <article class="stack-card reveal">
             <h3 class="stack-heading">Agents & MCP</h3>
             <ul class="stack-list">
-              <li><span class="stack-name">Agent harness</span><span class="stack-note">model routing, health-class failover</span></li>
-              <li><span class="stack-name">MCP servers</span><span class="stack-note">vendor APIs, observability, files</span></li>
-              <li><span class="stack-name">Safe-eval</span><span class="stack-note">AST allowlists, side-channels</span></li>
+              <li><span class="stack-name">Agent Skills</span><span class="stack-note">one skill, four agents - pinned releases</span></li>
+              <li><span class="stack-name">MCP servers</span><span class="stack-note">vendor APIs, observability, UniFi</span></li>
+              <li><span class="stack-name">Safe-eval</span><span class="stack-note">AST allowlists, HMAC webhooks, side-channels</span></li>
             </ul>
           </article>
           <article class="stack-card reveal">
@@ -227,7 +227,7 @@
           <article class="stack-card reveal">
             <h3 class="stack-heading">Python & Local AI</h3>
             <ul class="stack-list">
-              <li><span class="stack-name">Hermes Agent</span><span class="stack-note">tools, memory, skills, multi-surface operation</span></li>
+              <li><span class="stack-name">Hermes Agent</span><span class="stack-note">tools, memory, cron, WebUI + Discord surfaces</span></li>
               <li><span class="stack-name">LM Studio</span><span class="stack-note">OpenAI-compatible serving, wake-on-demand relay</span></li>
               <li><span class="stack-name">Model operations</span><span class="stack-note">catalogs, routing, GGUF, quantization</span></li>
             </ul>
@@ -275,6 +275,29 @@
               <li>Side-channels keep result sets out of the token window - CSVs go to Slack</li>
               <li>Model routing: failover on health classes only, fallback sticks per session</li>
               <li>PR review verb is a compile-time COMMENT - the model can't approve</li>
+            </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Python / AI / Open source</div>
+            <h3>Deep research framework</h3>
+            <ul class="card-points">
+              <li>Agent judges sources and confidence; stdlib Python enforces the contract</li>
+              <li>Quoted text verified against source extracts - stable IDs, rendered citations</li>
+              <li>Claim/evidence graph checked for consistency and confidence guardrails</li>
+              <li>Pinned releases install the same skill into Hermes, Claude Code, Codex, OpenCode</li>
+            </ul>
+            <div class="project-links">
+              <a href="https://github.com/atchisonbrent/deep-research" target="_blank" rel="noopener">Source &rarr;</a>
+            </div>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Python / Security / Homelab</div>
+            <h3>Homelab alert relay</h3>
+            <ul class="card-points">
+              <li>Appliances send static tokens, Hermes wants HMAC - the relay is the boundary</li>
+              <li>Producer prose is discarded - only typed source and incident class survive</li>
+              <li>fsync to an owner-only outbox before ack; the relay owns retry durability</li>
+              <li>Triage gets one read-only probe and no credentials; native alarms stay live</li>
             </ul>
           </article>
           <article class="project-card reveal">
@@ -326,6 +349,19 @@
               <li>Optional startup policy - a degraded backend can't block boot</li>
               <li>Schemas from Swagger with live-sample fallback, refreshed in the background</li>
             </ul>
+          </article>
+          <article class="project-card reveal">
+            <div class="project-tag">Python / CV / Open source</div>
+            <h3>SampleMatch</h3>
+            <ul class="card-points">
+              <li>Local-first CLI - find one known subject across terabytes of footage</li>
+              <li>YOLO detection to ResNet embeddings on MPS or CUDA; pure-stdlib fallback</li>
+              <li>Calibrate on a 500-file --limit with --auto-tune before the hours-long scan</li>
+              <li>SQLite state, HTML/CSV review reports, symlink exports - originals untouched</li>
+            </ul>
+            <div class="project-links">
+              <a href="https://github.com/atchisonbrent/samplematch" target="_blank" rel="noopener">Source &rarr;</a>
+            </div>
           </article>
           <article class="project-card reveal">
             <div class="project-tag">Go / CI</div>
@@ -412,9 +448,9 @@
             <h3>batchison.dev</h3>
             <ul class="card-points">
               <li>Plain HTML/CSS/JS - no framework, no build step, no dependencies</li>
-              <li>Cloudflare Pages with auto TLS, served from the edge</li>
-              <li>Rainbow dot-grid spotlight, magnetic chips, FLIP shuffle</li>
-              <li>Scroll restoration and theme persistence across reloads</li>
+              <li>Cloudflare Pages at the edge - immutable CSS, hook-enforced cache keys</li>
+              <li>Scroll-driven reveals, view-transition shuffle, light-dark() theming</li>
+              <li>Hero glyph physics, dot-grid spotlight, no-JS and reduced-motion complete</li>
             </ul>
             <div class="project-links">
               <a href="https://github.com/atchisonbrent/batchison.dev" target="_blank" rel="noopener">Source &rarr;</a>
@@ -523,6 +559,7 @@
               <dt>Current</dt><dd>The Culture</dd>
               <dt>Author</dt><dd>Iain M. Banks</dd>
               <dt>Rabbit hole</dt><dd>Minds, orbitals, Special Circumstances</dd>
+              <dt>Writing</dt><dd><a href="https://github.com/atchisonbrent/fiction-workshop" target="_blank" rel="noopener">fiction-workshop</a>, a continuity-aware story toolchain</dd>
             </dl>
           </article>
 
@@ -652,6 +689,6 @@
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></svg>
   </button>
 
-  <script type="module" src="assets/js/main.js?v=15"></script>
+  <script type="module" src="assets/js/main.js?v=16"></script>
 </body>
 </html>

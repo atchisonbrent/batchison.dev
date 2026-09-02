@@ -58,6 +58,9 @@ def main() -> None:
         "Wake-on-demand local inference",
         "Homelab control plane",
         "Private operations portal",
+        "Deep research framework",
+        "SampleMatch",
+        "Homelab alert relay",
         "69 TB usable",
         "RTX 5090",
         "Cloudflare Access",
@@ -83,6 +86,29 @@ def main() -> None:
     require("@media (min-width: 761px) and (max-width: 900px)" in css, "Tablet-specific layout breakpoint must remain present")
     require(".bento-card { grid-column: 1 / -1; }" in css, "Tablet Off-Screen cards must use a balanced full-width flow")
     require(".terminal-card { grid-row: auto; }" in css, "Tablet terminal must not reserve a phantom second grid row")
+
+    # Modern rendering layer: native browser features replace hand-rolled JS,
+    # each behind a support/motion guard so older browsers and reduced-motion
+    # users get the plain, complete page.
+    require("light-dark(" in css, "Theme palette must use light-dark() so dark values are declared once")
+    require("html:not([data-theme])" not in css, "The duplicated no-JS dark palette block must not return")
+    require("color-scheme: light dark" in css, "No-JS theme must follow the OS via color-scheme")
+    require("animation-timeline: view()" in css, "Scroll reveal must use CSS scroll-driven animations")
+    require("@supports (animation-timeline: view())" in css, "Scroll-driven reveal must be feature-guarded")
+    require("::view-transition-group(*.pc)" in css, "Project card view transitions must be styled by class")
+    require("view-transition-name: none" in css, "The root must opt out of view transitions so the page stays live")
+    require("@starting-style" in css, "Reset control must animate in from display:none via @starting-style")
+    reduced = re.findall(r"@media \(prefers-reduced-motion: reduce\)\s*\{(.*?)\n\}", css, re.DOTALL)
+    require(any("::view-transition" in block for block in reduced), "Reduced motion must disable view-transition pseudo-element animation")
+    require(int(css_ref.group(1)) >= 19, "Rendering-layer changes must bump the immutable CSS cache key")
+
+    projects_js = (ROOT / "assets/js/projects.js").read_text()
+    reveal_js = (ROOT / "assets/js/reveal.js").read_text()
+    require("startViewTransition" in projects_js, "Project reorders must use the View Transitions API")
+    require("firstPos" not in projects_js, "Hand-rolled FLIP measurement must be retired in favor of view transitions")
+    require('"animation-timeline: view()"' in reveal_js, "reveal.js must detect scroll-driven support and stand down")
+    require("IntersectionObserver" in reveal_js, "reveal.js must keep the IntersectionObserver fallback for older browsers")
+    require('src="assets/js/main.js?v=16"' in html, "Changed module graph should bump the entry module for instant propagation")
 
     private_surfaces = {
         "Hermes": "https://hermes.batchison.dev",
@@ -130,7 +156,7 @@ def main() -> None:
         html,
         flags=re.DOTALL,
     )
-    require(len(project_blocks) == 15, "Expected exactly 15 project cards")
+    require(len(project_blocks) == 18, "Expected exactly 18 project cards")
     for block in project_blocks:
         title_match = re.search(r"<h3>(.*?)</h3>", block, flags=re.DOTALL)
         title = unescape(re.sub(r"<[^>]+>", "", title_match.group(1))).strip() if title_match else "untitled"
@@ -175,10 +201,24 @@ def main() -> None:
     require(".hero-title.hero-signal" not in css, "Rejected spectral styling must be removed")
     require(int(css_ref.group(1)) >= 17, "Tablet layout styling must bump the immutable CSS cache key")
 
-    require(html.count("Homelab control plane") == 1, "Homelab control plane must appear exactly once")
-    require(html.count("Private operations portal") == 1, "Private operations portal must appear exactly once")
-    require(html.count("Wake-on-demand local inference") == 1, "Wake-on-demand inference must appear exactly once")
-    require(html.count('class="project-card reveal"') == 15, "Expanded project grid must end with a complete three-card row")
+    for title in (
+        "Homelab control plane",
+        "Private operations portal",
+        "Wake-on-demand local inference",
+        "Deep research framework",
+        "SampleMatch",
+        "Homelab alert relay",
+    ):
+        require(html.count(f"<h3>{title}</h3>") == 1, f"{title} must appear exactly once as a card title")
+    require(html.count('class="project-card reveal"') == 18, "Expanded project grid must end with a complete three-card row")
+    require(html.count('class="project-card reveal"') % 3 == 0, "Project card count must fill complete three-card rows")
+    for url in (
+        "https://github.com/atchisonbrent/deep-research",
+        "https://github.com/atchisonbrent/samplematch",
+    ):
+        require(f'href="{url}"' in html, f"Public project must link to its source: {url}")
+    require("FLIP shuffle" not in html, "Site card must describe the current interaction layer")
+    require("fiction-workshop" in html, "Reading card should point at the fiction workshop")
     require("The Lab" not in html, "Duplicative Lab card must not repeat the terminal inventory")
     require("Terraria server on the lab" not in html, "Stale Terraria hosting claim must not return")
     require(html.count("Reading") == 1, "Off-Screen must include one distinct reading card")
