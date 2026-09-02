@@ -27,10 +27,11 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
 
 ## Coupled edits - change one, change both
 
-- **Dark palette is duplicated in `style.css`.** Keep the shared theme variables
-  in `[data-theme="dark"]` and the adjacent no-JS
-  `prefers-color-scheme: dark` fallback synchronized. Decorative variables used
-  only by scripted effects do not need to be copied into the fallback.
+- **Palette is declared once with `light-dark()`.** `:root` sets
+  `color-scheme: light dark` and every theme variable is
+  `light-dark(light, dark)`. `[data-theme]` only pins `color-scheme`. There is
+  no duplicated dark block and no separate no-JS fallback to keep in sync - do
+  not reintroduce one. Add a new theme colour as one `light-dark()` pair.
 - **`<html>` carries no `data-theme` attribute in the markup.**
   `assets/js/boot.js` (blocking, in `<head>`) sets it pre-paint; its
   *absence* is the no-JS signal. Never add a static `data-theme` back.
@@ -52,7 +53,20 @@ has: changing an immutable-cached CSS file without bumping its `?v=` in
 - `_headers` comments go *above* the header block, not inside it -
   in-block comment support is undocumented in the Pages parser.
 - All motion respects `prefers-reduced-motion` (shared check in
-  `assets/js/motion.js`). New effects must too.
+  `assets/js/motion.js`). New effects must too. Two layers need explicit CSS
+  opt-outs because the blanket `* { animation-duration }` rule cannot reach
+  them: scroll-driven animations (they ignore duration) and
+  `::view-transition-*` pseudo-elements (`*` never matches pseudos).
+- **Rendering layer is native-first with fallbacks.** Scroll reveal is a CSS
+  scroll-driven animation (`animation-timeline: view()`) under `@supports`;
+  `reveal.js` stands down when the browser has it and runs the
+  IntersectionObserver path otherwise. Project shuffle/reset/page turns run
+  inside `document.startViewTransition`; every card in the page window carries
+  a stable `view-transition-name` and hidden cards carry `none` so they are
+  never captured. The root has `view-transition-name: none` so the page stays
+  live during the tween. Reset's entrance uses `@starting-style` +
+  `transition-behavior: allow-discrete`. Without any of these features the
+  page still renders complete and static.
 - **Hero physics is content-only.** `assets/js/hero.js` may move hero text, but
   controls and `.private-surfaces` must remain stationary and clickable. Keep
   touch listeners passive: the effect follows touch movement without taking

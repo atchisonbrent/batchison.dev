@@ -1,11 +1,19 @@
 import { prefersReducedMotion } from "./motion.js";
 
-// Scroll reveal (opacity only - FLIP owns transforms). Stagger comes from
-// --reveal-i feeding the CSS transition-delay calc; counted per parent so
-// each card grid restarts its own cascade.
+// Scroll reveal (opacity only - transforms belong to other layers).
+//
+// Modern browsers do this in pure CSS: `.reveal` carries a scroll-driven
+// animation on its own view() timeline (see style.css), so this module has
+// nothing to do and stands down. The IntersectionObserver path below is the
+// fallback for engines without animation-timeline; it toggles .active and
+// feeds --reveal-i so each card grid staggers its own cascade.
 export function initReveal() {
   const revealElements = document.querySelectorAll(".reveal");
   if (revealElements.length === 0) return;
+
+  const nativeScrollDriven =
+    typeof CSS !== "undefined" && CSS.supports && CSS.supports("animation-timeline: view()");
+  if (nativeScrollDriven) return;
 
   if (prefersReducedMotion || !("IntersectionObserver" in window)) {
     revealElements.forEach((el) => el.classList.add("active"));

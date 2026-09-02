@@ -17,8 +17,8 @@ assets/js/theme.js     Theme toggle + localStorage persistence
 assets/js/nav.js       Hamburger menu, anchor scrolling
 assets/js/effects.js   Pointer effects: card spotlight, word magnetism,
                        chip gradient field (one shared rAF loop)
-assets/js/projects.js  Project pagination, FLIP shuffle, expand/collapse
-assets/js/reveal.js    Scroll-reveal via IntersectionObserver
+assets/js/projects.js  Project pagination, view-transition shuffle, expand/collapse
+assets/js/reveal.js    Scroll-reveal fallback (CSS scroll-driven animation is primary)
 assets/js/hero.js      Spring + collision physics for non-interactive hero text
 assets/js/destruct.js  Easter egg: the terminal's red dot self-destructs
                        the site (projectile-physics debris, WAAPI)

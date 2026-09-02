@@ -1,8 +1,20 @@
 import { prefersReducedMotion } from "./motion.js";
 
-// Project grid: shuffle (FLIP), pagination (slide), expand/collapse (height
-// clip). All cards stay rendered; a max-height clip hides everything beyond
-// the current page window.
+// Project grid: shuffle / reset / page turn reorder the DOM inside a View
+// Transition; expand/collapse animates the grid's max-height clip. All cards
+// stay rendered; the clip hides everything beyond the current page window.
+//
+// View-transition contract (see the matching CSS):
+// - Every card carries a stable view-transition-name while it is inside the
+//   page window and `none` while it is hidden. So a card that stays visible
+//   across a reorder gets a real position tween; one leaving the window fades
+//   out where it was; one entering fades in where it lands. Hidden cards are
+//   never captured, which is what keeps them from flying across the footer -
+//   the pseudo-element layer is not clipped by the grid's overflow.
+// - The root opts out of capture, so the rest of the page (hero physics,
+//   scrolling) stays live during the ~260ms tween.
+// - <html data-vt="next|prev"> is set for the duration of a page turn so the
+//   CSS can swap the default cross-fade for a directional slide.
 export function initProjects(recacheCards) {
   const shuffleBtn = document.getElementById("shuffle-btn");
   const resetBtn = document.getElementById("reset-btn");
@@ -16,9 +28,9 @@ export function initProjects(recacheCards) {
   const TOTAL = allCards.length;
   const DISPLAY_COUNT = Math.min(6, TOTAL);
   const EXPANDED_COUNT = 12;
-  const FLIP_MS = 250;
   const HEIGHT_MS = 400;
-  const SLIDE_MS = 130; // per phase; out + in lands near the FLIP's 250ms
+
+  const cardNames = new Map(allCards.map((card, i) => [card, "pc-" + i]));
 
   let currentOrder = allCards.slice();
   let isExpanded = false;
@@ -28,6 +40,9 @@ export function initProjects(recacheCards) {
   const pagerPrev = document.getElementById("pager-prev");
   const pagerNext = document.getElementById("pager-next");
   const pagerCount = document.getElementById("pager-count");
+
+  const canTransition = () =>
+    !prefersReducedMotion && typeof document.startViewTransition === "function";
 
   function pageSize() { return isExpanded ? EXPANDED_COUNT : DISPLAY_COUNT; }
   function pageCount() { return Math.max(1, Math.ceil(TOTAL / pageSize())); }
@@ -51,14 +66,6 @@ export function initProjects(recacheCards) {
       const temp = result[i]; result[i] = result[j]; result[j] = temp;
     }
     return result;
-  }
-
-  function clearStyles(cards) {
-    cards.forEach((card) => {
-      card.style.transition = "";
-      card.style.transform = "";
-      card.style.opacity = "";
-    });
   }
 
   function updateFooter() {
@@ -90,92 +97,59 @@ export function initProjects(recacheCards) {
   }
 
   // Non-window cards can occupy empty slots in a partial last row where the
-  // clip can't reach them. visibility (not display) keeps their layout so
-  // FLIP can still measure rects.
+  // clip can't reach them. visibility (not display) keeps their layout so the
+  // grid geometry is stable. The view-transition-name rides along: only
+  // window cards are capturable.
   function applyPageVisibility() {
     const visCount = visibleCount();
     for (let i = 0; i < projectGrid.children.length; i++) {
-      projectGrid.children[i].style.visibility = i < visCount ? "" : "hidden";
+      const card = projectGrid.children[i];
+      const shown = i < visCount;
+      card.style.visibility = shown ? "" : "hidden";
+      card.style.viewTransitionName = shown ? cardNames.get(card) : "none";
     }
   }
 
-  function unhideAll() {
-    allCards.forEach((card) => { card.style.visibility = ""; });
+  // Apply the current order/page to the DOM. Called inside the view
+  // transition's update callback, or directly when transitions are off.
+  function commitLayout() {
+    displayOrder().forEach((card) => { projectGrid.appendChild(card); });
+    setClipHeight();
+    applyPageVisibility();
+    updatePager();
   }
 
-  // FLIP: all cards stay rendered. Clip hides cards beyond the page window.
-  // Entering cards emerge from behind clip, leaving cards slide behind it.
-  function flipReorder() {
+  function reorder(direction) {
     if (pendingTimeout) { clearTimeout(pendingTimeout); pendingTimeout = null; }
-    clearStyles(allCards);
     projectGrid.classList.remove("is-animating");
-    unhideAll();
 
-    // Snap max-height to current state (no transition)
-    setClipHeight();
-
-    if (prefersReducedMotion) {
-      displayOrder().forEach((card) => { projectGrid.appendChild(card); });
-      setClipHeight();
-      applyPageVisibility();
+    if (!canTransition()) {
+      commitLayout();
       recache();
       return;
     }
 
-    // FIRST: record all positions
-    const firstPos = new Map();
-    allCards.forEach((card) => {
-      firstPos.set(card, card.getBoundingClientRect());
-    });
-
-    // Reorder DOM
-    displayOrder().forEach((card) => { projectGrid.appendChild(card); });
-
-    // Update height for new layout
-    setClipHeight();
-
-    // INVERT: translate each card back to its first position
-    allCards.forEach((card) => {
-      const first = firstPos.get(card);
-      if (!first) return;
-      const last = card.getBoundingClientRect();
-      const dx = first.left - last.left;
-      const dy = first.top - last.top;
-      if (dx === 0 && dy === 0) return;
-      card.style.transition = "none";
-      card.style.transform = "translate(" + dx + "px," + dy + "px)";
-    });
-
-    projectGrid.offsetHeight;
-
-    // PLAY
-    allCards.forEach((card) => {
-      if (card.style.transform) {
-        card.style.transition = "transform " + FLIP_MS + "ms cubic-bezier(0.2,0,0.2,1)";
-        card.style.transform = "";
-      }
-    });
-
-    pendingTimeout = setTimeout(() => {
-      clearStyles(allCards);
-      applyPageVisibility();
-      recache();
-      pendingTimeout = null;
-    }, FLIP_MS + 30);
+    const root = document.documentElement;
+    if (direction) root.dataset.vt = direction > 0 ? "next" : "prev";
+    // A second call while one is running skips the first - the browser owns
+    // the interrupt bookkeeping the old FLIP timers used to.
+    const transition = document.startViewTransition(commitLayout);
+    transition.finished.then(
+      () => { delete root.dataset.vt; recache(); },
+      () => { delete root.dataset.vt; recache(); },
+    );
   }
 
   function shuffle() {
     currentOrder = fisherYates(allCards);
     page = 0;
-    flipReorder();
-    updatePager();
+    reorder(0);
   }
 
   // Toggle expanded/collapsed page size, keeping the first visible card
   // visible. Reorders DOM for the new window, then animates max-height.
   function setExpanded(expanded) {
     if (pendingTimeout) { clearTimeout(pendingTimeout); pendingTimeout = null; }
-    clearStyles(allCards);
     projectGrid.classList.remove("is-animating");
 
     const currentH = projectGrid.offsetHeight;
@@ -208,62 +182,12 @@ export function initProjects(recacheCards) {
   function expand() { setExpanded(true); }
   function collapse() { setExpanded(false); }
 
-  // Page turn: slide current window out, swap window, slide new one in.
-  // Wraps around; on a single page the same cards cycle out and back in.
+  // Page turn, wrapping around. Outgoing cards leave the window (fade/slide
+  // out in place), incoming ones enter (fade/slide in where they land).
   function goPage(dir) {
-    if (pendingTimeout) { clearTimeout(pendingTimeout); pendingTimeout = null; }
-    clearStyles(allCards);
-    projectGrid.classList.remove("is-animating");
-
     const pc = pageCount();
-    const newPage = ((page + dir) % pc + pc) % pc;
-
-    if (prefersReducedMotion) {
-      page = newPage;
-      displayOrder().forEach((card) => { projectGrid.appendChild(card); });
-      setClipHeight();
-      applyPageVisibility();
-      updatePager();
-      recache();
-      return;
-    }
-
-    const dist = projectGrid.offsetWidth;
-    const outgoing = Array.prototype.slice.call(projectGrid.children, 0, visibleCount());
-
-    outgoing.forEach((card) => {
-      card.style.transition = "transform " + SLIDE_MS + "ms cubic-bezier(0.4,0,1,1), opacity " + SLIDE_MS + "ms ease";
-      card.style.transform = "translateX(" + (-dir * dist) + "px)";
-      card.style.opacity = "0";
-    });
-
-    pendingTimeout = setTimeout(() => {
-      clearStyles(allCards);
-      page = newPage;
-      displayOrder().forEach((card) => { projectGrid.appendChild(card); });
-      setClipHeight();
-      applyPageVisibility();
-      updatePager();
-
-      const incoming = Array.prototype.slice.call(projectGrid.children, 0, visibleCount());
-      incoming.forEach((card) => {
-        card.style.transition = "none";
-        card.style.transform = "translateX(" + (dir * dist) + "px)";
-        card.style.opacity = "0";
-      });
-      projectGrid.offsetHeight;
-      incoming.forEach((card) => {
-        card.style.transition = "transform " + SLIDE_MS + "ms cubic-bezier(0,0,0.2,1), opacity " + SLIDE_MS + "ms ease";
-        card.style.transform = "";
-        card.style.opacity = "";
-      });
-
-      pendingTimeout = setTimeout(() => {
-        clearStyles(allCards);
-        recache();
-        pendingTimeout = null;
-      }, SLIDE_MS + 30);
-    }, SLIDE_MS + 20);
+    page = ((page + dir) % pc + pc) % pc;
+    reorder(dir);
   }
 
   // Init: all cards rendered, clip to first page
@@ -286,8 +210,7 @@ export function initProjects(recacheCards) {
     resetBtn.addEventListener("click", () => {
       currentOrder = allCards.slice();
       page = 0;
-      flipReorder();
-      updatePager();
+      reorder(0);
       resetBtn.setAttribute("hidden", "");
     });
   }

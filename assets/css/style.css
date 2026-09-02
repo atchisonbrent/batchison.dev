@@ -16,22 +16,27 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* Theme model: every palette variable is declared ONCE as light-dark(light,
+   dark). `color-scheme` decides which side wins - the OS preference by default
+   (no JS), or the explicit data-theme set pre-paint by boot.js / the toggle.
+   No duplicated dark block, no fallback drift. */
 :root {
-  --accent: #6366f1;
-  --accent-strong: #4f46e5;
-  --accent-soft: rgba(99, 102, 241, 0.12);
-  --accent-glow: #0891b2;
+  color-scheme: light dark;
+  --accent: light-dark(#6366f1, #818cf8);
+  --accent-strong: light-dark(#4f46e5, #a5b4fc);
+  --accent-soft: light-dark(rgba(99, 102, 241, 0.12), rgba(129, 140, 248, 0.16));
+  --accent-glow: light-dark(#0891b2, #22d3ee);
   --dot-1: #22d3ee;
   --dot-2: #a78bfa;
   --dot-3: #f472b6;
   --dot-4: #fbbf24;
-  --bg: #ffffff;
-  --bg-alt: #f7f7fb;
-  --surface: #ffffff;
-  --border: #e6e6ef;
-  --text: #15151c;
-  --text-muted: #5a5a6e;
-  --shadow: 0 1px 2px rgba(15, 15, 25, 0.04), 0 8px 24px rgba(15, 15, 25, 0.06);
+  --bg: light-dark(#ffffff, #0b0b12);
+  --bg-alt: light-dark(#f7f7fb, #11111b);
+  --surface: light-dark(#ffffff, #15151f);
+  --border: light-dark(#e6e6ef, #262633);
+  --text: light-dark(#15151c, #ededf5);
+  --text-muted: light-dark(#5a5a6e, #a0a0b5);
+  --shadow: 0 1px 2px light-dark(rgba(15, 15, 25, 0.04), rgba(0, 0, 0, 0.3)), 0 8px 24px light-dark(rgba(15, 15, 25, 0.06), rgba(0, 0, 0, 0.35));
   --radius: 16px;
   --radius-sm: 10px;
   --max-width: 1080px;
@@ -39,45 +44,9 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
-/* Dark palette, applied by the toggle and the external pre-paint boot script.
-   Keep shared theme variables synchronized with the no-JS fallback below;
-   decorative dot colors are only needed by the scripted theme path. */
-[data-theme="dark"] {
-  --accent: #818cf8;
-  --accent-strong: #a5b4fc;
-  --accent-soft: rgba(129, 140, 248, 0.16);
-  --accent-glow: #22d3ee;
-  --bg: #0b0b12;
-  --bg-alt: #11111b;
-  --surface: #15151f;
-  --border: #262633;
-  --text: #ededf5;
-  --text-muted: #a0a0b5;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
-  --dot-1: #22d3ee;
-  --dot-2: #a78bfa;
-  --dot-3: #f472b6;
-  --dot-4: #fbbf24;
-}
-
-/* No-JS honors the OS preference. Scoped to :not([data-theme]) so it only ever
-   applies when the boot script didn't run—an explicit toggle choice sets the
-   attribute and wins. */
-@media (prefers-color-scheme: dark) {
-  html:not([data-theme]) {
-    --accent: #818cf8;
-    --accent-strong: #a5b4fc;
-    --accent-soft: rgba(129, 140, 248, 0.16);
-    --accent-glow: #22d3ee;
-    --bg: #0b0b12;
-    --bg-alt: #11111b;
-    --surface: #15151f;
-    --border: #262633;
-    --text: #ededf5;
-    --text-muted: #a0a0b5;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
-  }
-}
+/* An explicit choice pins the scheme; light-dark() above resolves against it. */
+[data-theme="light"] { color-scheme: light; }
+[data-theme="dark"] { color-scheme: dark; }
 
 * { box-sizing: border-box; }
 
@@ -849,6 +818,12 @@ a:hover { text-decoration: underline; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  /* `*` never matches pseudo-elements, and scroll-driven animations ignore
+     duration, so both modern layers need explicit opt-outs. */
+  html.js-reveal .reveal { animation: none !important; opacity: 1; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
 }
 
 /* --- Dot grid: ambient + 3D wave spotlight --- */
@@ -902,9 +877,17 @@ a:hover { text-decoration: underline; }
   display: inline-block;
 }
 
-/* --- Scroll reveal (opacity only - no transform, FLIP owns transforms) --- */
-/* --reveal-i is the element's index among its .reveal siblings, set by JS,
-   so each card grid staggers its own cascade */
+/* --- Scroll reveal ---
+   Two implementations of the same contract (opacity only - transforms belong
+   to the view-transition / hover layers):
+   1. Modern: a CSS scroll-driven animation on the element's own view()
+      timeline. Zero JS, runs off the main thread, and naturally reverses when
+      you scroll back up.
+   2. Fallback: reveal.js + IntersectionObserver toggles .active when the
+      browser lacks animation-timeline.
+   Without JS at all, html.js-reveal is absent and everything is simply
+   visible. --reveal-i is the element's index among its .reveal siblings, set
+   by JS, so each card grid staggers its own cascade in the fallback. */
 html.js-reveal .reveal {
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -914,6 +897,68 @@ html.js-reveal .reveal {
 html.js-reveal .reveal.active {
   opacity: 1;
 }
+@supports (animation-timeline: view()) {
+  html.js-reveal .reveal {
+    opacity: 1;
+    transition: none;
+    will-change: auto;
+    animation: reveal-in linear both;
+    animation-timeline: view();
+    /* Fade runs across the element's first ~18% of travel into the viewport,
+       then holds. `entry` keeps it keyed to entering only, so cards already
+       on screen at load are fully opaque with no flicker. */
+    animation-range: entry 0% entry 60%;
+  }
+  @keyframes reveal-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* --- View transitions (projects.js) ---
+   Shuffle / reset / page turn reorder the DOM inside document.startViewTransition;
+   the browser snapshots each named card and interpolates the move. The root
+   opts out so the rest of the page never freezes into a snapshot mid-scroll
+   and the hero physics keep running. Cards outside the page window carry
+   view-transition-name: none (set by JS), so they are never captured and
+   cannot fly across the footer - the pseudo-element layer ignores the grid's
+   overflow clip. */
+:root { view-transition-name: none; }
+.project-card { view-transition-class: pc; }
+::view-transition-group(*.pc) {
+  animation-duration: 260ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0.2, 1);
+}
+::view-transition-old(*.pc),
+::view-transition-new(*.pc) {
+  animation-duration: 180ms;
+}
+/* Page turns: swap the default cross-fade for a directional slide. Old-only
+   groups sit where the card was, new-only groups where it lands, so the two
+   halves read as one carousel motion. */
+html[data-vt="next"]::view-transition-old(*.pc) { animation-name: vt-out-left; }
+html[data-vt="next"]::view-transition-new(*.pc) { animation-name: vt-in-right; }
+html[data-vt="prev"]::view-transition-old(*.pc) { animation-name: vt-out-right; }
+html[data-vt="prev"]::view-transition-new(*.pc) { animation-name: vt-in-left; }
+@keyframes vt-out-left  { to { opacity: 0; translate: -40px 0; } }
+@keyframes vt-out-right { to { opacity: 0; translate: 40px 0; } }
+@keyframes vt-in-right  { from { opacity: 0; translate: 40px 0; } }
+@keyframes vt-in-left   { from { opacity: 0; translate: -40px 0; } }
+
+/* --- Reset control entrance ---
+   Reset flips from [hidden] to shown after the first shuffle. @starting-style
+   gives display:none -> visible a real transition without the JS
+   "add class next frame" dance. transition-behavior lets `display` wait for
+   the fade to finish on the way out. */
+.reset-btn {
+  transition: opacity 180ms ease, translate 180ms ease, display 180ms allow-discrete;
+  opacity: 1;
+  translate: 0 0;
+}
+@starting-style {
+  .reset-btn { opacity: 0; translate: 8px 0; }
+}
+.reset-btn[hidden] { opacity: 0; translate: 8px 0; }
 
 /* --- Self-destruct easter egg (destruct.js) --- */
 /* The red terminal dot only becomes interactive once JS arms it. */
